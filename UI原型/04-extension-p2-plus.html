@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>04 · 扩展 P2+ · 衰衰闯关</title>
+  <link rel="stylesheet" href="assets/proto.css" />
+</head>
+<body>
+  <header class="proto-header">
+    <h1>04 · 扩展 P2+ 输入 / 资产 / 社交</h1>
+    <p>网页与视频输入、知识书架、补考副本、知识胶囊、检验/探索双模式；以及 P3 排行榜、多人 PK、AI 镜像 PK 远期示意。</p>
+    <nav class="proto-nav">
+      <a href="index.html">← 索引</a>
+      <a href="01-phase0-core.html">01 核心</a>
+      <a href="02-mvp-history-share.html">02 历史分享</a>
+      <a href="03-extension-p1.html">03 扩展P1</a>
+      <a class="is-active" href="04-extension-p2-plus.html">04 扩展P2+</a>
+    </nav>
+    <div class="legend">
+      <span><i class="dot ext"></i> P2 输入与资产</span>
+      <span><i class="dot" style="background:#ffb4a8"></i> P3 社交示意</span>
+    </div>
+  </header>
+
+  <main class="gallery">
+    <!-- 多输入 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>多类型输入入口</strong><em class="tag-ext">E7/E8</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="brand-row">
+            <div data-mascot="idle" data-size="tiny"></div>
+            <span class="logo-type">你想怎么喂我？</span>
+          </div>
+          <div class="stack">
+            <div class="list-item"><strong style="flex:1;">粘贴文本</strong><span class="hint">MVP</span></div>
+            <div class="list-item"><strong style="flex:1;">上传文档</strong><span class="badge doing">P1</span></div>
+            <div class="list-item" style="background:var(--yellow);"><strong style="flex:1;">网页链接</strong><span class="badge">P2</span></div>
+            <div class="list-item" style="background:var(--yellow);"><strong style="flex:1;">视频链接 / 上传</strong><span class="badge">P2</span></div>
+          </div>
+          <div class="comic-bubble" style="margin-top:auto;">链接类先解析正文，失败会告诉你哪里挂了——别装死刷新。</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <!-- 网页 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>网页链接解析</strong><em class="tag-ext">E7</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <h3 class="panel-title">贴个网址</h3>
+          <div class="input">https://example.com/photosynthesis</div>
+          <div class="comic-panel">
+            <div class="field-label">解析预览</div>
+            <p style="margin:0;font-size:0.78rem;"><strong>标题：</strong>光合作用简明教程<br/><strong>正文摘要：</strong>叶绿体、光反应与暗反应…（已截断）</p>
+          </div>
+          <div class="btn">用这篇出题</div>
+          <div class="btn secondary">换链接</div>
+          <span class="hint warn" style="display:none;">解析失败示意：页面需登录 / 反爬</span>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <!-- 视频 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>视频输入</strong><em class="tag-ext">E8</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="row">
+            <div data-mascot="think" data-size="sm"></div>
+            <div class="comic-bubble grow">视频我得先「听懂」再出题，耗时长一点，别催。</div>
+          </div>
+          <div class="tabs">
+            <div class="tab active">粘贴链接</div>
+            <div class="tab">本地上传</div>
+          </div>
+          <div class="input">https://bilibili.com/video/BV…</div>
+          <div class="comic-panel" style="text-align:center;padding:20px;">
+            <div style="height:88px;border:2.5px solid var(--ink);border-radius:12px;background:#1a1a1a;color:var(--yellow);display:grid;place-items:center;font-weight:700;">▶ 封面占位</div>
+            <p class="hint" style="margin:8px 0 0;">提取字幕 / 语音稿 → 再生成闯关</p>
+          </div>
+          <div class="btn">提取并出题</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <div class="section-break">书架 · 补考 · 胶囊 · 双模式</div>
+
+    <!-- 书架 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>知识书架</strong><em class="tag-ext">E9</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <h3 class="panel-title">我的知识书架</h3>
+          <p class="hint">历史升级成「资产感」——不是冷冰冰列表。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="comic-panel" style="background:var(--yellow);min-height:110px;">
+              <strong style="font-size:0.85rem;">光合作用</strong>
+              <p class="hint" style="margin:6px 0 0;">通关 2 次</p>
+            </div>
+            <div class="comic-panel" style="background:var(--sky);min-height:110px;">
+              <strong style="font-size:0.85rem;">民法总则</strong>
+              <p class="hint" style="margin:6px 0 0;">通关 1 次</p>
+            </div>
+            <div class="comic-panel" style="background:#ffb4a8;min-height:110px;">
+              <strong style="font-size:0.85rem;">产品评审</strong>
+              <p class="hint" style="margin:6px 0 0;">未完成</p>
+            </div>
+            <div class="comic-panel" style="border-style:dashed;min-height:110px;display:grid;place-items:center;font-weight:700;">+ 新开一局</div>
+          </div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="bank"></nav></div>
+      </div>
+    </article>
+
+    <!-- 补考副本 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>错题补考副本</strong><em class="tag-ext">E10</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body" style="justify-content:center;gap:12px;">
+          <div data-mascot="sweat" data-size="lg" style="align-self:center;"></div>
+          <div class="comic-panel">
+            <span class="type-chip" style="background:#ffb4a8;">补考副本</span>
+            <h3 class="panel-title">专治你刚踩过的坑</h3>
+            <p style="margin:0;font-size:0.82rem;">根据错题知识点新生成 4 题「补考」。过了算扳回一城，不过……你懂的。</p>
+          </div>
+          <div class="btn">进入补考</div>
+          <div class="btn secondary">下次再说</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 知识胶囊 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>30 秒知识胶囊</strong><em class="tag-ext">E11</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body" style="justify-content:center;gap:12px;">
+          <div class="capsule">
+            <div class="row" style="align-items:center;">
+              <div data-mascot="cheer" data-size="tiny"></div>
+              <strong class="logo-type">知识胶囊</strong>
+            </div>
+            <h3 class="panel-title" style="margin:10px 0 6px;">光合作用 · 30 秒版</h3>
+            <ol style="margin:0;padding-left:18px;font-size:0.8rem;font-weight:700;">
+              <li>场所：叶绿体</li>
+              <li>原料：CO₂ + 水</li>
+              <li>产物：有机物 + O₂</li>
+            </ol>
+            <p class="hint" style="margin:10px 0 0;">来自衰衰闯关 · 可一键转发</p>
+          </div>
+          <div class="btn sky">转发给好友</div>
+          <div class="btn secondary">保存图片</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 双模式 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>检验 / 探索双模式</strong><em class="tag-ext">E12</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <h3 class="panel-title">这局怎么玩？</h3>
+          <div class="comic-panel" style="background:var(--yellow);box-shadow:var(--shadow);">
+            <strong>有材料 · 检验模式</strong>
+            <p class="hint" style="margin:6px 0 0;">你贴啥我考啥，严格材料优先。适合复习验收。</p>
+          </div>
+          <div class="comic-panel">
+            <strong>一句话 · 探索模式</strong>
+            <p class="hint" style="margin:6px 0 0;">只丢主题词，我帮你找材料再出题（质量预期不同，别和检验比）。</p>
+          </div>
+          <div class="comic-bubble" style="margin-top:auto;">两种模式预期分开说清楚，省得你骂我「乱编」。</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <div class="section-break">P3 远期示意 · 排行榜 / PK / AI 镜像</div>
+
+    <!-- 排行榜 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>主题排行榜</strong><em class="tag-ext">E16</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <h3 class="panel-title">本周 · 光合主题榜</h3>
+          <div class="rank-row"><strong>1</strong><span class="grow">学霸甲</span><span>100%</span></div>
+          <div class="rank-row"><strong>2</strong><span class="grow">卷王乙</span><span>92%</span></div>
+          <div class="rank-row me"><strong>7</strong><span class="grow">你（阿衰同学）</span><span>67%</span></div>
+          <div class="rank-row"><strong>8</strong><span class="grow">路人丙</span><span>60%</span></div>
+          <div class="comic-bubble" style="margin-top:auto;">榜是锦上添花。先把自己的错题收拾明白。</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="me"></nav></div>
+      </div>
+    </article>
+
+    <!-- 多人 PK -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>多人 PK 示意</strong><em class="tag-ext">E17</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="pk-arena">
+            <div class="comic-panel" style="text-align:center;">
+              <div data-mascot="happy" data-size="sm" style="margin:0 auto;"></div>
+              <strong>你</strong>
+              <div class="hint">准备就绪</div>
+            </div>
+            <div class="comic-panel" style="text-align:center;">
+              <div data-mascot="idle" data-size="sm" style="margin:0 auto;"></div>
+              <strong>好友</strong>
+              <div class="hint">匹配中…</div>
+            </div>
+          </div>
+          <p style="text-align:center;font-weight:700;font-size:1.1rem;">同题限时对轰</p>
+          <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+          <span class="hint" style="text-align:center;">实时或异步 · 远期能力，非本期</span>
+          <div class="btn disabled mt-auto">开始对战（未开放）</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- AI 镜像 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>AI 镜像 PK</strong><em class="tag-ext">E18</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="row" style="align-items:center;">
+            <div data-mascot="think" data-size="sm"></div>
+            <div class="comic-bubble grow">跟「模拟的你」打一把？我按你历史薄弱点出对手，专克死穴。</div>
+          </div>
+          <div class="comic-panel">
+            <strong>镜像对手设定</strong>
+            <p class="hint" style="margin:8px 0 0;">难度：略高于你最近 3 局均值<br/>克制：多选漏选 / 绝对化表述</p>
+          </div>
+          <div class="btn">约战镜像（远期）</div>
+          <div class="btn secondary">还是先刷错题</div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <p class="foot-note">P2/P3/P4（语音读题、数字人）均后置；本页用于产品愿景对齐，避免范围回潮进 Phase 0。</p>
+  <script src="assets/mascot.js"></script>
+</body>
+</html>
+
+
+

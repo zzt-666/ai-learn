@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>01 · Phase0 核心闭环 · 衰衰闯关</title>
+  <link rel="stylesheet" href="assets/proto.css" />
+</head>
+<body>
+  <header class="proto-header">
+    <h1>01 · Phase 0 核心闭环</h1>
+    <p>粘贴文本 → AI 出题 → 逐题闯关（单选/多选/判断）→ 即时讲解 → 通关报告。字体已改为常规黑体；壳层页带 TabBar。</p>
+    <nav class="proto-nav">
+      <a href="index.html">← 索引</a>
+      <a class="is-active" href="01-phase0-core.html">01 核心</a>
+      <a href="02-mvp-history-share.html">02 历史分享</a>
+      <a href="03-extension-p1.html">03 扩展P1</a>
+      <a href="04-extension-p2-plus.html">04 扩展P2+</a>
+    </nav>
+    <div class="legend">
+      <span><i class="dot core"></i> Phase0 / MVP 主路径</span>
+    </div>
+  </header>
+
+  <main class="gallery">
+    <!-- 1 引导：全屏引导无 TabBar -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>首次引导</strong><em class="tag-core">M15</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>衰衰闯关</span></div>
+        <div class="app-body" style="justify-content:center;align-items:center;text-align:center;gap:14px;">
+          <div data-mascot="cheer" data-size="lg"></div>
+          <h2 class="panel-title" style="font-size:1.35rem;margin:0;">衰衰闯关</h2>
+          <p style="margin:0;font-size:0.9rem;font-weight:600;">粘一段 → 开一局 → 边答边学</p>
+          <div class="comic-bubble" style="text-align:left;max-width:260px;">
+            哟，别光「看过」就完事。把笔记砸给我，我给你整套闯关题——答完还有复盘报告，兄弟罩你。
+          </div>
+          <div class="btn mt-auto" style="max-width:260px;">开整！去粘贴 →</div>
+          <span class="hint">约 1 分钟搞懂怎么玩</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- 2 首页：直接粘贴开局 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>首页 · 开局</strong><em class="tag-core">Home</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="home-head">
+            <div class="hello-row">
+              <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="2"/>
+                <circle cx="16" cy="13" r="5" fill="#ffd7b5" stroke="#1a1a1a" stroke-width="1.6"/>
+                <path d="M8 26c2-5 5-7 8-7s6 2 8 7" fill="#ffe2c4" stroke="#1a1a1a" stroke-width="1.6"/>
+                <circle cx="14" cy="12.5" r="0.9" fill="#1a1a1a"/><circle cx="18" cy="12.5" r="0.9" fill="#1a1a1a"/>
+              </svg>
+              <p class="hello-inline">你好呀，阿衰同学</p>
+            </div>
+            <div class="coin-pill">
+              <svg class="coin-face" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.8"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700" fill="#1a1a1a">分</text></svg>
+              360
+            </div>
+          </div>
+          <div class="home-title-row">
+            <h2 class="home-title">今天想闯哪一关？</h2>
+            <div class="mascot-slot">卡通人物<br/>占位</div>
+          </div>
+          <div class="stack">
+            <div class="field-label">粘贴学习材料</div>
+            <div class="textarea" style="color:#888;min-height:120px;">粘贴一句话 / 一段笔记 / 长文本…（建议 ≥50 字）主题名由 AI 自动生成</div>
+          </div>
+          <div class="btn">开始闯关！</div>
+          <span class="hint">材料优先出题 · 主题名 AI 自动起，不用你填</span>
+          <h3 class="section-label">直接开闯</h3>
+          <div class="quick-picks">
+            <div class="quick-pick">
+              <strong>光合作用要点</strong>
+              <small>题库 · 6 题 · 点此开闯</small>
+            </div>
+            <div class="quick-pick">
+              <strong>民法总则速记</strong>
+              <small>题库 · 10 题 · 点此开闯</small>
+            </div>
+          </div>
+          <h3 class="section-label">未完成的闯关</h3>
+          <div class="unfinished">
+            <div class="unfinished-item">
+              <div class="ico"><div data-mascot="think" data-size="tiny"></div></div>
+              <div class="meta"><strong>产品需求评审</strong><small>8 题 · 进行中</small></div>
+              <svg class="ring" viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="15"/><circle class="fg" cx="20" cy="20" r="15" stroke-dasharray="94" stroke-dashoffset="38"/><text x="20" y="23">60%</text></svg>
+            </div>
+            <div class="unfinished-item">
+              <div class="ico" style="background:#cfefff;"><div data-deco="bulb" data-size="sm"></div></div>
+              <div class="meta"><strong>民法总则速记</strong><small>10 题 · 进行中</small></div>
+              <svg class="ring" viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="15"/><circle class="fg" cx="20" cy="20" r="15" stroke-dasharray="94" stroke-dashoffset="56"/><text x="20" y="23">40%</text></svg>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <!-- 3 过短 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>文本过短</strong><em class="tag-core">M16</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="home-head">
+            <div class="hello-row">
+              <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="2"/>
+                <circle cx="16" cy="13" r="5" fill="#ffd7b5" stroke="#1a1a1a" stroke-width="1.6"/>
+                <path d="M8 26c2-5 5-7 8-7s6 2 8 7" fill="#ffe2c4" stroke="#1a1a1a" stroke-width="1.6"/>
+              </svg>
+              <p class="hello-inline">你好呀，阿衰同学</p>
+            </div>
+            <div class="coin-pill">
+              <svg class="coin-face" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.8"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700" fill="#1a1a1a">分</text></svg>
+              360
+            </div>
+          </div>
+          <div class="stack">
+            <div class="field-label">粘贴学习材料</div>
+            <div class="textarea" style="border-color:var(--tomato);min-height:100px;">光合作用很重要</div>
+            <span class="hint warn">字太少了我出题会瞎编——再补两句呗，至少约 50 字。</span>
+          </div>
+          <div class="btn disabled">开始闯关！</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <!-- 题目 Tab -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>题目 · 题库</strong><em class="tag-core">Bank</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <h3 class="panel-title">我的题库</h3>
+          <p class="hint">存放导入与 AI 生成的题目，点开可再闯。</p>
+          <div class="list-item">
+            <div data-deco="book" data-size="sm"></div>
+            <div class="meta">
+              <strong>光合作用要点</strong>
+              <small>AI 生成 · 6 题 · 今天</small>
+            </div>
+            <span class="badge">可闯</span>
+          </div>
+          <div class="list-item">
+            <div data-deco="bulb" data-size="sm"></div>
+            <div class="meta">
+              <strong>民法总则速记</strong>
+              <small>AI 生成 · 10 题 · 昨天</small>
+            </div>
+            <span class="badge">可闯</span>
+          </div>
+          <div class="list-item">
+            <div style="width:32px;height:32px;border:2px solid var(--ink);border-radius:8px;background:#ffb4a8;display:grid;place-items:center;font-size:0.65rem;font-weight:700;">PDF</div>
+            <div class="meta">
+              <strong>期末复习导入包</strong>
+              <small>文档导入 · 18 题</small>
+            </div>
+            <span class="badge doing">导入</span>
+          </div>
+          <div class="btn secondary mt-auto">导入题目 / 文档</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="bank"></nav></div>
+      </div>
+    </article>
+
+    <div class="section-break">出题等待 & 失败态（沉浸页，无 TabBar）</div>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>出题 Loading</strong><em class="tag-core">M4</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="loading-wrap">
+            <div data-mascot="think" data-size="lg"></div>
+            <div class="spinner" aria-hidden="true"></div>
+            <h3 class="panel-title" style="margin:0;">正在根据你的材料出题…</h3>
+            <p class="hint" style="max-width:220px;">单选、多选、判断混着来。别刷新，小衰脑子转得慢但稳。</p>
+            <div class="comic-bubble">预计一会儿就好。你要是紧张，就先搓搓手。</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>出题失败</strong><em class="tag-core">M16</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body" style="justify-content:center;gap:14px;">
+          <div data-mascot="sweat" data-size="lg" style="align-self:center;"></div>
+          <div class="comic-panel">
+            <h3 class="panel-title">出题翻车了</h3>
+            <p style="margin:0;font-size:0.82rem;">原因：服务忙或材料太绕，模型没吐出合法题目。<br/><br/>你可以：缩短文本 / 稍后再试。</p>
+          </div>
+          <div class="btn">再试一次</div>
+          <div class="btn secondary">改材料重来</div>
+        </div>
+      </div>
+    </article>
+
+    <div class="section-break">答题沉浸页（参考关闭/计时/积分 · 大选项 · 反馈奖励）</div>
+
+    <!-- 答题中 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>答题中</strong><em class="tag-core">M5/M6</em></div>
+      <div class="phone quiz-mode">
+        <div class="quiz-screen">
+          <div class="quiz-top">
+            <div class="quiz-icon-btn">×</div>
+            <div class="quiz-timer">15</div>
+            <div class="quiz-coin">
+              <svg width="18" height="18" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.6"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700">分</text></svg>
+              360
+            </div>
+          </div>
+          <div class="quiz-topic">
+            <div data-mascot="think" data-size="sm"></div>
+            <div>
+              <strong>光合作用要点</strong>
+              <div class="hint">单选 · 材料闯关</div>
+            </div>
+          </div>
+          <div class="quiz-progress">第 1 题 / 共 6 题</div>
+          <p class="quiz-stem">光合作用的主要场所是下列哪一项？</p>
+          <div class="quiz-options">
+            <div class="quiz-opt">线粒体</div>
+            <div class="quiz-opt selected">叶绿体</div>
+            <div class="quiz-opt">液泡</div>
+            <div class="quiz-opt">核糖体</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 答对反馈：与答题页同壳（顶栏/背景），判题后才出图标 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>反馈 · 答对</strong><em class="tag-core">M7/M8</em></div>
+      <div class="phone quiz-mode">
+        <div class="quiz-screen">
+          <div class="quiz-top">
+            <div class="quiz-icon-btn">×</div>
+            <div class="quiz-timer">15</div>
+            <div class="quiz-coin">
+              <svg width="18" height="18" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.6"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700">分</text></svg>
+              365
+            </div>
+          </div>
+          <div class="quiz-topic">
+            <div data-mascot="happy" data-size="sm"></div>
+            <div>
+              <strong>光合作用要点</strong>
+              <div class="hint">单选 · 已判题</div>
+            </div>
+          </div>
+          <div class="quiz-progress">第 1 题 / 共 6 题</div>
+          <p class="quiz-stem">光合作用的主要场所是下列哪一项？</p>
+          <div class="quiz-options">
+            <div class="quiz-opt correct judged"><span class="dot">✓</span>叶绿体</div>
+            <div class="quiz-opt wrong judged" style="opacity:.7"><span class="dot">✗</span>线粒体</div>
+          </div>
+          <div class="result-banner ok">
+            <div data-mascot="happy" data-size="tiny"></div>
+            <div class="grow">
+              <div>漂亮，拿下！ · 答对了</div>
+              <div class="gain-line">
+                <span class="xp-gain">+20 EXP</span>
+                <span class="coin-gain">+5 积分</span>
+              </div>
+            </div>
+          </div>
+          <div class="feedback-sheet ok">
+            <h4>知识讲解</h4>
+            <p><strong>正确答案：</strong>叶绿体<br/>材料里写了：叶绿体是光合作用的主要场所，类囊体膜上进行光反应。</p>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <div class="btn-row">
+            <div class="btn secondary">上一题</div>
+            <div class="btn">下一题 →</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 多选：提交前仅选中底色；无大框 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>答题 · 多选（已选未交）</strong><em class="tag-core">M5</em></div>
+      <div class="phone quiz-mode">
+        <div class="quiz-screen">
+          <div class="quiz-top">
+            <div class="quiz-icon-btn">×</div>
+            <div class="quiz-timer">18</div>
+            <div class="quiz-coin">
+              <svg width="18" height="18" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.6"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700">分</text></svg>
+              365
+            </div>
+          </div>
+          <div class="quiz-topic">
+            <div data-mascot="idle" data-size="sm"></div>
+            <div>
+              <strong>光合作用要点</strong>
+              <div class="hint">多选 · 选中仅变底色</div>
+            </div>
+          </div>
+          <div class="quiz-progress">第 3 题 / 共 6 题</div>
+          <p class="quiz-stem">下列哪些是光合作用的原料？（多选）</p>
+          <div class="quiz-options">
+            <div class="quiz-opt selected">二氧化碳</div>
+            <div class="quiz-opt selected">水</div>
+            <div class="quiz-opt">氧气</div>
+            <div class="quiz-opt">葡萄糖</div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <div class="btn">提交答案</div>
+        </div>
+      </div>
+    </article>
+
+    <div class="section-break">答错反馈 · 通关报告</div>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>反馈 · 答错</strong><em class="tag-core">M7</em></div>
+      <div class="phone quiz-mode">
+        <div class="quiz-screen">
+          <div class="quiz-top">
+            <div class="quiz-icon-btn">×</div>
+            <div class="quiz-timer">12</div>
+            <div class="quiz-coin">
+              <svg width="18" height="18" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.6"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700">分</text></svg>
+              365
+            </div>
+          </div>
+          <div class="quiz-topic">
+            <div data-mascot="sweat" data-size="sm"></div>
+            <div>
+              <strong>光合作用要点</strong>
+              <div class="hint">多选 · 已判题</div>
+            </div>
+          </div>
+          <div class="quiz-progress">第 3 题 / 共 6 题</div>
+          <p class="quiz-stem">下列哪些是光合作用的原料？（多选）</p>
+          <div class="quiz-options">
+            <div class="quiz-opt correct judged"><span class="dot">✓</span>二氧化碳</div>
+            <div class="quiz-opt wrong judged"><span class="dot">✗</span>氧气</div>
+            <div class="quiz-opt correct judged"><span class="dot">✓</span>水</div>
+            <div class="quiz-opt" style="opacity:.5">葡萄糖</div>
+          </div>
+          <div class="result-banner bad">
+            <div data-mascot="sweat" data-size="tiny"></div>
+            <div class="grow">
+              <div>差一点点！ · 答错了</div>
+              <div class="gain-line">
+                <span class="xp-gain">+5 EXP（参与奖）</span>
+                <span class="hint">积分无加成</span>
+              </div>
+            </div>
+          </div>
+          <div class="feedback-sheet bad">
+            <h4>知识讲解</h4>
+            <p><strong>正确答案：</strong>二氧化碳、水<br/>氧气是产物不是原料。多选要集合完全一致，少选/多选都算错。</p>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <div class="btn-row">
+            <div class="btn secondary">上一题</div>
+            <div class="btn">下一题 →</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>报告生成中</strong><em class="tag-core">M9</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="loading-wrap">
+            <div data-mascot="think" data-size="lg"></div>
+            <div class="spinner"></div>
+            <h3 class="panel-title" style="margin:0;">题答完了，正在写复盘…</h3>
+            <p class="hint">正确率、错题回顾、薄弱点，马上端上来。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>通关复盘报告</strong><em class="tag-core">M9/M10/M11</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="row" style="align-items:center;">
+            <div data-mascot="cheer" data-size="sm"></div>
+            <div class="grow">
+              <h3 class="panel-title" style="margin:0;">通关！这局够味</h3>
+              <span class="hint">光合作用要点闯关</span>
+            </div>
+            <div data-deco="trophy" data-size="sm"></div>
+          </div>
+          <div class="score-summary">
+            <div class="acc-block">
+              <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+              </svg>
+              <div class="acc-center"><b>67%</b><span>正确率</span></div>
+            </div>
+            <div class="score-pair">
+              <div class="stat"><b>4</b><span>答对</span></div>
+              <div class="stat"><b>2</b><span>答错</span></div>
+            </div>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">本局收获</div>
+            <div class="reward-row">
+              <span class="reward-chip xp">+95 EXP</span>
+              <span class="reward-chip">+28 积分</span>
+            </div>
+            <p class="hint" style="margin:8px 0 0;">答对多、连续答对有小加成。</p>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">知识要点</div>
+            <ul style="margin:0;padding-left:18px;font-size:0.78rem;">
+              <li>场所在叶绿体，光反应在类囊体</li>
+              <li>原料：CO₂ 与水；产物含氧气与有机物</li>
+              <li>夜晚仍有呼吸等代谢，别一刀切</li>
+            </ul>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">错题回顾</div>
+            <p style="margin:0;font-size:0.75rem;"><span class="type-chip multi">多选</span> 原料题：漏选「水」，误选「氧气」。</p>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">薄弱点</div>
+            <p style="margin:0;font-size:0.75rem;">原料/产物容易拧；多条件并列题要逐项核对。</p>
+          </div>
+          <div class="btn sky">生成海报并分享</div>
+          <div class="btn">再来一局</div>
+          <div class="btn secondary">回首页改材料</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 分享海报预览 -->
+    <article class="screen-card">
+      <div class="screen-label"><strong>分享海报</strong><em class="tag-core">M11</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable" style="background:rgba(0,0,0,.08);">
+          <p class="hint" style="text-align:center;margin:0;">先生成海报，再发给好友扫码开闯</p>
+          <div class="share-poster">
+            <div class="poster-brand">
+              <div data-mascot="cheer" data-size="tiny"></div>
+              <div>
+                <strong>衰衰闯关</strong>
+                <div class="hint">通关海报</div>
+              </div>
+            </div>
+            <h3 class="poster-title">我通关了「光合作用要点」</h3>
+            <div class="score-summary compact">
+              <div class="acc-block">
+                <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                  <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                  <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+                </svg>
+                <div class="acc-center"><b>67%</b><span>正确率</span></div>
+              </div>
+              <div class="score-pair">
+                <div class="stat"><b>4</b><span>答对</span></div>
+                <div class="stat"><b>2</b><span>答错</span></div>
+              </div>
+            </div>
+            <div class="reward-row">
+              <span class="reward-chip xp">+95 EXP</span>
+              <span class="reward-chip">+28 积分</span>
+            </div>
+            <p class="hint" style="margin:0;">要点：叶绿体 · CO₂+水 · 别一刀切说夜晚停代谢</p>
+            <div class="poster-foot">
+              <div class="qr-box" aria-label="小程序码占位"></div>
+              <div class="poster-cta">
+                <b>扫码打开小程序</b>
+                好友扫一扫即可进入同一主题闯关，来比一比？
+              </div>
+            </div>
+          </div>
+          <div class="btn">分享给微信好友</div>
+          <div class="btn secondary">保存海报到相册</div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <p class="foot-note">分享为「海报 + 二维码占位」：好友扫码打开小程序。报告页入口改为「生成海报并分享」。</p>
+  <script src="assets/mascot.js"></script>
+</body>
+</html>
+
+

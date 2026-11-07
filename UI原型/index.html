@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>衰衰闯关 · UI 原型索引</title>
+  <link rel="stylesheet" href="assets/proto.css" />
+  <style>
+    .index-grid {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 8px 20px 64px;
+      display: grid;
+      gap: 16px;
+    }
+    .pack {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      background: var(--white);
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease;
+    }
+    .pack:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+    .pack .num {
+      font-size: 1.75rem;
+      font-weight: 700;
+      width: 72px; height: 72px;
+      display: grid; place-items: center;
+      border: 3px solid var(--ink);
+      border-radius: 16px;
+      background: var(--yellow);
+    }
+    .pack h2 { margin: 0 0 4px; font-size: 1.2rem; font-weight: 700; }
+    .pack p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+    .pack .go {
+      padding: 10px 14px;
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      background: var(--sky);
+      white-space: nowrap;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .hero {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 36px 20px 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+    .hero h1 { font-size: clamp(1.75rem, 4vw, 2.4rem); margin: 0 0 8px; font-weight: 700; }
+    .hero p { margin: 0; max-width: 36rem; color: var(--ink-soft); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chips span {
+      font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border: 2px solid var(--ink); border-radius: 999px; background: #ffd2a6;
+    }
+    @media (max-width: 720px) {
+      .hero { grid-template-columns: 1fr; }
+      .pack { grid-template-columns: 72px 1fr; }
+      .pack .go { grid-column: 1 / -1; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <h1>衰衰闯关 · UI 原型</h1>
+      <p>任意知识闯关学习助手 HTML 原型。校园漫画风：黄帽衫小衰、粗墨线、常规字体、清爽底色、损友式文案。壳层页带 SVG 图标 TabBar。</p>
+      <div class="chips">
+        <span>微信小程序竖屏框</span>
+        <span>一行三列 · 响应式</span>
+        <span>MVP + 扩展</span>
+        <span>常规字体 · 无稿纸</span>
+      </div>
+    </div>
+    <div data-mascot="cheer" data-size="lg"></div>
+  </header>
+
+  <div class="index-grid">
+    <a class="pack" href="01-phase0-core.html">
+      <div class="num">01</div>
+      <div>
+        <h2>Phase 0 核心闭环</h2>
+        <p>引导 · 粘贴开局 · Loading/失败 · 单选/多选/判断 · 对错反馈 · 通关报告</p>
+      </div>
+      <span class="go">打开 →</span>
+    </a>
+    <a class="pack" href="02-mvp-history-share.html">
+      <div class="num" style="background:var(--sky)">02</div>
+      <div>
+        <h2>MVP 账号 / 历史 / 分享</h2>
+        <p>微信登录 · 历史空态与列表 · 报告回看 · 重闯 · 海报分享（含二维码）与好友扫码落地</p>
+      </div>
+      <span class="go">打开 →</span>
+    </a>
+    <a class="pack" href="03-extension-p1.html">
+      <div class="num" style="background:#e8d4ff">03</div>
+      <div>
+        <h2>扩展 P1 闭环增强</h2>
+        <p>文档输入 · 续玩 · 错题重练 · 讲解赞踩 · 好友同闯对比 · 题量难度</p>
+      </div>
+      <span class="go">打开 →</span>
+    </a>
+    <a class="pack" href="04-extension-p2-plus.html">
+      <div class="num" style="background:#ffb4a8">04</div>
+      <div>
+        <h2>扩展 P2+ 输入 / 资产 / 社交</h2>
+        <p>网页视频 · 书架 · 补考 · 知识胶囊 · 双模式 · 排行榜 · PK 示意</p>
+      </div>
+      <span class="go">打开 →</span>
+    </a>
+  </div>
+
+  <p class="foot-note">说明：本目录与 <code>docs/</code> 平齐，仅作视觉与流程确认用，非可运行业务代码。产品名「衰衰闯关」可后续替换。</p>
+  <script src="assets/mascot.js"></script>
+</body>
+</html>
+

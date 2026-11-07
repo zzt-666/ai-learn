@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>02 · MVP 历史与分享 · 衰衰闯关</title>
+  <link rel="stylesheet" href="assets/proto.css" />
+</head>
+<body>
+  <header class="proto-header">
+    <h1>02 · MVP 账号 / 历史 / 分享</h1>
+    <p>微信登录、学习历史、报告回看、重闯、海报分享（含小程序码占位）。壳层页 Tab：开局 / 题目 / 我的。</p>
+    <nav class="proto-nav">
+      <a href="index.html">← 索引</a>
+      <a href="01-phase0-core.html">01 核心</a>
+      <a class="is-active" href="02-mvp-history-share.html">02 历史分享</a>
+      <a href="03-extension-p1.html">03 扩展P1</a>
+      <a href="04-extension-p2-plus.html">04 扩展P2+</a>
+    </nav>
+    <div class="legend"><span><i class="dot mvp"></i> 需求 MVP（方案 Phase0 后置项）</span></div>
+  </header>
+
+  <main class="gallery">
+    <article class="screen-card">
+      <div class="screen-label"><strong>微信授权登录</strong><em class="tag-mvp">M1</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body" style="justify-content:center;align-items:center;text-align:center;gap:14px;">
+          <div data-mascot="idle" data-size="lg"></div>
+          <h2 class="panel-title" style="font-size:1.25rem;margin:0;">先认个脸呗</h2>
+          <p style="margin:0;font-size:0.85rem;max-width:240px;">登录后，你的闯关记录和报告才跟得上你。不登录也能试玩一局，但历史留不住。</p>
+          <div class="btn sky" style="max-width:260px;">微信一键登录</div>
+          <div class="btn ghost">先随便逛逛</div>
+          <span class="hint">学习数据与账号绑定 · 商业化后置</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>已登录首页</strong><em class="tag-mvp">导航</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>阿衰同学</span></div>
+        <div class="app-body scrollable">
+          <div class="home-head">
+            <div class="hello-row">
+              <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="2"/>
+                <circle cx="16" cy="13" r="5" fill="#ffd7b5" stroke="#1a1a1a" stroke-width="1.6"/>
+                <path d="M8 26c2-5 5-7 8-7s6 2 8 7" fill="#ffe2c4" stroke="#1a1a1a" stroke-width="1.6"/>
+              </svg>
+              <p class="hello-inline">你好呀，阿衰同学</p>
+            </div>
+            <div class="coin-pill">
+              <svg class="coin-face" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#ff9f3c" stroke="#1a1a1a" stroke-width="1.8"/><text x="11" y="15" text-anchor="middle" font-size="9" font-weight="700" fill="#1a1a1a">分</text></svg>
+              360
+            </div>
+          </div>
+          <div class="home-title-row">
+            <h2 class="home-title">今天想闯哪一关？</h2>
+            <div class="mascot-slot">卡通人物<br/>占位</div>
+          </div>
+          <div class="stack">
+            <div class="field-label">粘贴学习材料</div>
+            <div class="textarea" style="color:#888;min-height:110px;">粘贴材料…主题名由 AI 自动生成</div>
+          </div>
+          <div class="btn">开始闯关！</div>
+          <h3 class="section-label">直接开闯</h3>
+          <div class="quick-picks">
+            <div class="quick-pick">
+              <strong>光合作用要点</strong>
+              <small>题库 · 6 题 · 点此开闯</small>
+            </div>
+            <div class="quick-pick">
+              <strong>民法总则速记</strong>
+              <small>题库 · 10 题 · 点此开闯</small>
+            </div>
+          </div>
+          <h3 class="section-label">未完成的闯关</h3>
+          <div class="unfinished">
+            <div class="unfinished-item">
+              <div class="ico"><div data-mascot="think" data-size="tiny"></div></div>
+              <div class="meta"><strong>产品需求评审</strong><small>8 题 · 进行中</small></div>
+              <svg class="ring" viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="15"/><circle class="fg" cx="20" cy="20" r="15" stroke-dasharray="94" stroke-dashoffset="38"/><text x="20" y="23">60%</text></svg>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="home"></nav></div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>题目 · 题库</strong><em class="tag-mvp">Bank</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <h3 class="panel-title">我的题库</h3>
+          <p class="hint">导入与 AI 生成的题目集中放这儿。</p>
+          <div class="list-item">
+            <div data-deco="book" data-size="sm"></div>
+            <div class="meta"><strong>光合作用要点</strong><small>AI 生成 · 6 题</small></div>
+            <span class="badge">可闯</span>
+          </div>
+          <div class="list-item">
+            <div style="width:32px;height:32px;border:2px solid var(--ink);border-radius:8px;background:#ffb4a8;display:grid;place-items:center;font-size:0.65rem;font-weight:700;">PDF</div>
+            <div class="meta"><strong>期末复习导入包</strong><small>文档导入 · 18 题</small></div>
+            <span class="badge doing">导入</span>
+          </div>
+          <div class="btn secondary mt-auto">导入题目 / 文档</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="bank"></nav></div>
+      </div>
+    </article>
+
+    <div class="section-break">历史（归入「我的」）· 报告回看 · 我的</div>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>学习历史 · 空态</strong><em class="tag-mvp">M12/M16</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body">
+          <div class="btn ghost" style="justify-content:flex-start;width:auto;">← 我的</div>
+          <h3 class="panel-title">闯关历史</h3>
+          <div class="empty">
+            <div data-mascot="sweat" data-size="lg"></div>
+            <strong>这儿空空如也</strong>
+            <p class="hint" style="max-width:200px;">还没留下足迹。去粘一段材料，开第一局——报告会自动躺这儿。</p>
+            <div class="btn" style="max-width:200px;">去开一局</div>
+          </div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="me"></nav></div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>学习历史列表</strong><em class="tag-mvp">M12</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="btn ghost" style="justify-content:flex-start;width:auto;">← 我的</div>
+          <div class="row" style="align-items:center;">
+            <h3 class="panel-title" style="margin:0;">闯关历史</h3>
+            <div data-deco="book" data-size="sm" style="margin-left:auto;"></div>
+          </div>
+          <div class="list-item">
+            <div data-mascot="idle" data-size="tiny"></div>
+            <div class="meta">
+              <strong>光合作用要点闯关</strong>
+              <small>今天 12:08 · 67% · +95 EXP · +28 积分</small>
+            </div>
+            <span class="badge">已通关</span>
+          </div>
+          <div class="list-item">
+            <div data-mascot="think" data-size="tiny"></div>
+            <div class="meta">
+              <strong>民法总则速记</strong>
+              <small>昨天 21:40 · 88% · +140 EXP · +42 积分</small>
+            </div>
+            <span class="badge">已通关</span>
+          </div>
+          <div class="list-item">
+            <div data-mascot="sweat" data-size="tiny"></div>
+            <div class="meta">
+              <strong>产品需求评审要点</strong>
+              <small>11/05 · 未完成（可重开）</small>
+            </div>
+            <span class="badge doing">未完成</span>
+          </div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="me"></nav></div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>主题详情操作</strong><em class="tag-mvp">M13/M14</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="btn ghost" style="justify-content:flex-start;width:auto;">← 历史</div>
+          <div class="comic-panel">
+            <h3 class="panel-title" style="margin:0;">光合作用要点闯关</h3>
+            <p class="hint" style="margin:6px 0 0;">今天 12:08 通关 · 单选/多选/判断混合</p>
+            <div class="score-summary compact" style="margin-top:10px;">
+              <div class="acc-block">
+                <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                  <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                  <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+                </svg>
+                <div class="acc-center"><b>67%</b><span>正确率</span></div>
+              </div>
+              <div class="score-pair">
+                <div class="stat"><b>+95</b><span>EXP</span></div>
+                <div class="stat"><b>+28</b><span>积分</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="btn">看复盘报告</div>
+          <div class="btn secondary">重闯这一局</div>
+          <div class="btn sky">生成海报并分享</div>
+          <div class="comic-bubble" style="margin-top:auto;">重闯会重新答题，报告另记一笔——不怕丢脸，丢脸长记性。</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="me"></nav></div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>历史报告回看</strong><em class="tag-mvp">M13</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="row" style="align-items:center;">
+            <div data-mascot="happy" data-size="sm"></div>
+            <div class="grow">
+              <h3 class="panel-title" style="margin:0;">旧报告翻出来了</h3>
+              <span class="hint">光合作用要点闯关</span>
+            </div>
+            <div data-deco="flag" data-size="sm"></div>
+          </div>
+          <div class="score-summary">
+            <div class="acc-block">
+              <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+              </svg>
+              <div class="acc-center"><b>67%</b><span>正确率</span></div>
+            </div>
+            <div class="score-pair">
+              <div class="stat"><b>4</b><span>答对</span></div>
+              <div class="stat"><b>2</b><span>答错</span></div>
+            </div>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">薄弱点（当时）</div>
+            <p style="margin:0;font-size:0.75rem;">原料/产物易混；多选题集合要对齐。</p>
+          </div>
+          <div class="comic-panel">
+            <div class="panel-title">错题回顾</div>
+            <p style="margin:0;font-size:0.75rem;">多选·原料题：漏选水，误选氧气。</p>
+          </div>
+          <div class="btn sky">再次生成海报分享</div>
+          <div class="btn">重闯本主题</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>我的</strong><em class="tag-mvp">Tab</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="row" style="align-items:center;">
+            <div data-mascot="idle" data-size="sm"></div>
+            <div>
+              <h3 class="panel-title" style="margin:0;">阿衰同学</h3>
+              <span class="hint">已绑定微信 · 累计通关 12 局</span>
+            </div>
+          </div>
+          <div class="level-card">
+            <div class="lv-badge">Lv<br/>5</div>
+            <div>
+              <strong style="font-size:0.85rem;">经验值 1280 / 1500</strong>
+              <div class="xp-track"><div class="xp-fill" style="width:85%"></div></div>
+              <div class="reward-row" style="margin-top:6px;">
+                <span class="pill coin" style="box-shadow:none;">积分 360</span>
+                <span class="hint">再攒 220 EXP 升 Lv.6</span>
+              </div>
+            </div>
+          </div>
+          <div class="list-item"><div class="meta"><strong>闯关历史</strong><small>通关报告 · 重闯记录</small></div></div>
+          <div class="list-item"><div class="meta"><strong>学习偏好</strong><small>默认 6 题 · 标准难度</small></div></div>
+          <div class="list-item"><div class="meta"><strong>积分怎么用？（示意）</strong><small>换题量加成 / 皮肤贴纸 · 商业化后置</small></div></div>
+          <div class="list-item"><div class="meta"><strong>关于衰衰闯关</strong><small>版本原型 v0.1</small></div></div>
+          <div class="btn secondary mt-auto">退出登录</div>
+        </div>
+        <div class="tabbar-dock"><nav data-tabbar="me"></nav></div>
+      </div>
+    </article>
+
+    <div class="section-break">海报分享 · 扫码打开 · 好友落地</div>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>分享海报预览</strong><em class="tag-mvp">M11</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable" style="background:rgba(0,0,0,.08);">
+          <p class="hint" style="text-align:center;margin:0;">海报生成成功 · 含小程序码占位</p>
+          <div class="share-poster">
+            <div class="poster-brand">
+              <div data-mascot="cheer" data-size="tiny"></div>
+              <div>
+                <strong>衰衰闯关</strong>
+                <div class="hint">通关海报</div>
+              </div>
+            </div>
+            <h3 class="poster-title">我通关了「光合作用要点」</h3>
+            <div class="score-summary compact">
+              <div class="acc-block">
+                <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                  <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                  <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+                </svg>
+                <div class="acc-center"><b>67%</b><span>正确率</span></div>
+              </div>
+              <div class="score-pair">
+                <div class="stat"><b>4</b><span>答对</span></div>
+                <div class="stat"><b>2</b><span>答错</span></div>
+              </div>
+            </div>
+            <div class="reward-row">
+              <span class="reward-chip xp">+95 EXP</span>
+              <span class="reward-chip">+28 积分</span>
+            </div>
+            <div class="poster-foot">
+              <div class="qr-box" aria-label="小程序码占位"></div>
+              <div class="poster-cta">
+                <b>扫码打开小程序</b>
+                好友微信扫一扫，直接进同一主题闯关。
+              </div>
+            </div>
+          </div>
+          <div class="btn">分享给微信好友</div>
+          <div class="btn secondary">保存海报到相册</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>海报 · 分享渠道</strong><em class="tag-mvp">M11</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body" style="justify-content:flex-end;padding:0;background:rgba(0,0,0,.35);">
+          <div style="padding:12px 14px 0;opacity:.85;">
+            <div class="share-poster" style="transform:scale(.92);transform-origin:top center;">
+              <div class="poster-brand">
+                <div data-mascot="cheer" data-size="tiny"></div>
+                <strong>衰衰闯关</strong>
+              </div>
+              <h3 class="poster-title" style="font-size:.95rem;">光合作用要点</h3>
+              <div class="score-summary compact">
+                <div class="acc-block">
+                  <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                    <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                    <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+                  </svg>
+                  <div class="acc-center"><b>67%</b><span>正确率</span></div>
+                </div>
+                <div class="score-pair">
+                  <div class="stat"><b>4</b><span>答对</span></div>
+                  <div class="stat"><b>2</b><span>答错</span></div>
+                </div>
+              </div>
+              <div class="poster-foot">
+                <div class="qr-box" style="width:56px;height:56px;"></div>
+                <div class="poster-cta"><b>扫码开闯</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="comic-panel" style="border-radius:18px 18px 0 0;margin:8px 0 0;padding:16px 14px 22px;">
+            <strong>分享海报到</strong>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;text-align:center;font-size:0.68rem;font-weight:600;">
+              <div><div style="width:48px;height:48px;margin:0 auto 4px;border:2.5px solid var(--ink);border-radius:14px;background:#95ec69;display:grid;place-items:center;">微</div>好友</div>
+              <div><div style="width:48px;height:48px;margin:0 auto 4px;border:2.5px solid var(--ink);border-radius:14px;background:var(--yellow);display:grid;place-items:center;">圈</div>朋友圈</div>
+              <div><div style="width:48px;height:48px;margin:0 auto 4px;border:2.5px solid var(--ink);border-radius:14px;background:var(--sky);display:grid;place-items:center;">群</div>群聊</div>
+              <div><div style="width:48px;height:48px;margin:0 auto 4px;border:2.5px solid var(--ink);border-radius:14px;background:var(--chalk);display:grid;place-items:center;">图</div>相册</div>
+            </div>
+            <div class="btn secondary">取消</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="screen-card">
+      <div class="screen-label"><strong>好友打开落地页</strong><em class="tag-mvp">分享回流</em></div>
+      <div class="phone">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="app-body scrollable">
+          <div class="row" style="align-items:center;">
+            <div data-mascot="idle" data-size="sm"></div>
+            <div class="comic-bubble grow right">有人把通关报告甩你脸上了。瞅一眼，或者自己闯。</div>
+          </div>
+          <div class="comic-bubble">扫海报二维码进来的？行，开同一主题比一比。</div>
+          <div class="comic-panel">
+            <span class="hint">来自好友 · 阿衰同学 · 海报扫码</span>
+            <h3 class="panel-title">光合作用要点闯关</h3>
+            <div class="score-summary compact" style="margin-top:8px;">
+              <div class="acc-block">
+                <svg class="acc-ring" viewBox="0 0 88 88" aria-hidden="true">
+                  <circle class="acc-bg" cx="44" cy="44" r="34"/>
+                  <circle class="acc-fg" cx="44" cy="44" r="34" style="stroke-dasharray:213.6;stroke-dashoffset:70.5"/>
+                </svg>
+                <div class="acc-center"><b>67%</b><span>对方</span></div>
+              </div>
+              <div class="score-pair">
+                <div class="stat"><b>4</b><span>对</span></div>
+                <div class="stat"><b>2</b><span>错</span></div>
+              </div>
+            </div>
+            <p style="margin:10px 0 0;font-size:0.75rem;">要点摘要：场所叶绿体；原料 CO₂+水…</p>
+          </div>
+          <div class="btn">我也闯一关</div>
+          <div class="btn secondary">先看完整报告摘要</div>
+          <span class="hint">落地页由小程序码带参打开同一主题</span>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <p class="foot-note">分享链路：通关 → 生成海报（含二维码占位）→ 发好友 / 存相册 → 好友扫码打开小程序同主题。</p>
+  <script src="assets/mascot.js"></script>
+</body>
+</html>
+
+
