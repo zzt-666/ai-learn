@@ -68,7 +68,7 @@
           </div>
           <div class="stack">
             <div class="field-label">粘贴学习材料</div>
-            <div class="textarea" style="color:#888;min-height:120px;">粘贴一句话 / 一段笔记 / 长文本…（建议 ≥50 字）主题名由 AI 自动生成</div>
+            <div class="textarea" style="color:#888;min-height:120px;">粘贴一句话 / 一段笔记 / 长文本…主题名由 AI 自动生成</div>
           </div>
           <div class="btn">开始闯关！</div>
           <span class="hint">材料优先出题 · 主题名 AI 自动起，不用你填</span>
@@ -101,9 +101,9 @@
       </div>
     </article>
 
-    <!-- 3 过短 -->
+    <!-- 3 空输入提示（仅未粘贴任何内容时） -->
     <article class="screen-card">
-      <div class="screen-label"><strong>文本过短</strong><em class="tag-core">M16</em></div>
+      <div class="screen-label"><strong>空输入提示</strong><em class="tag-core">M16</em></div>
       <div class="phone">
         <div class="status-bar"><span>9:41</span><span>●●●</span></div>
         <div class="app-body scrollable">
@@ -123,8 +123,8 @@
           </div>
           <div class="stack">
             <div class="field-label">粘贴学习材料</div>
-            <div class="textarea" style="border-color:var(--tomato);min-height:100px;">光合作用很重要</div>
-            <span class="hint warn">字太少了我出题会瞎编——再补两句呗，至少约 50 字。</span>
+            <div class="textarea" style="border-color:var(--tomato);min-height:100px;color:#888;"></div>
+            <span class="hint warn">先贴点东西再开局——空着手我变不出题来。</span>
           </div>
           <div class="btn disabled">开始闯关！</div>
         </div>
@@ -196,7 +196,7 @@
           <div data-mascot="sweat" data-size="lg" style="align-self:center;"></div>
           <div class="comic-panel">
             <h3 class="panel-title">出题翻车了</h3>
-            <p style="margin:0;font-size:0.82rem;">原因：服务忙或材料太绕，模型没吐出合法题目。<br/><br/>你可以：缩短文本 / 稍后再试。</p>
+            <p style="margin:0;font-size:0.82rem;">原因：服务忙或模型没吐出合法题目。<br/><br/>你可以：稍后再试，或改改材料重来。</p>
           </div>
           <div class="btn">再试一次</div>
           <div class="btn secondary">改材料重来</div>
