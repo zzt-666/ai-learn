@@ -1,6 +1,9 @@
 # 本地压缩备份，不入库
 UI原型.zip
 
+# 本地 Cursor MCP（不入库）
+.cursor/mcp.json
+
 # OS / editor
 .DS_Store
 Thumbs.db
