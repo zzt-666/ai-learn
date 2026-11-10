@@ -1,0 +1,56 @@
+.loading-page,
+.fail-page {
+  min-height: 100vh;
+  padding: 40rpx 28rpx;
+}
+
+.loading-wrap {
+  flex: 1;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 24rpx;
+}
+
+.loading-hint {
+  max-width: 440rpx;
+}
+
+.spinner {
+  width: 104rpx;
+  height: 104rpx;
+  border: 6rpx solid var(--ink);
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: var(--ink);
+  }
+}
+
+.fail-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28rpx;
+  align-items: stretch;
+}
+
+.fail-desc {
+  font-size: 28rpx;
+  white-space: pre-wrap;
+  color: var(--ink-soft);
+}

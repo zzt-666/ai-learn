@@ -26,3 +26,17 @@ venv/
 *.log
 *.tmp
 .cache/
+
+# Node / Taro
+node_modules/
+frontend/dist/
+frontend/.taro/
+frontend/.swc/
+frontend/project.private.config.json
+*.local
+
+# Cursor 本地
+.cursor/
+
+# Python venv
+backend/.venv/

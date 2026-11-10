@@ -1,0 +1,164 @@
+.share-shell {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.share-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  height: 100vh;
+  padding: 16rpx 28rpx 40rpx;
+}
+
+.center {
+  text-align: center;
+}
+
+.share-poster {
+  width: 100%;
+  border: 6rpx solid var(--ink);
+  border-radius: 36rpx;
+  background: linear-gradient(165deg, #fff8f1 0%, #ffe2c4 45%, #ffd2a6 100%);
+  box-shadow: var(--shadow-sm);
+  padding: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.poster-brand {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.brand-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.poster-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.score-summary {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 16rpx 20rpx;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.acc-block {
+  width: 144rpx;
+  height: 144rpx;
+  border: 10rpx solid var(--yellow);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.acc-num {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.acc-label {
+  font-size: 18rpx;
+  color: var(--ink-soft);
+}
+
+.score-pair {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+}
+
+.stat {
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  text-align: center;
+  padding: 12rpx 4rpx;
+}
+
+.stat-b {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.stat-s {
+  display: block;
+  font-size: 20rpx;
+  color: var(--ink-soft);
+}
+
+.reward-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.reward-chip {
+  display: inline-flex;
+  padding: 12rpx 20rpx;
+  border: 4rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--orange-soft);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.reward-chip.xp {
+  background: #eef2ff;
+}
+
+.poster-foot {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding-top: 16rpx;
+  border-top: 4rpx dashed rgba(26, 26, 26, 0.25);
+}
+
+.qr-box {
+  width: 144rpx;
+  height: 144rpx;
+  flex-shrink: 0;
+  border: 5rpx solid var(--ink);
+  border-radius: 20rpx;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-text {
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.cta-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 4rpx;
+}
+
+.cta-desc {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}

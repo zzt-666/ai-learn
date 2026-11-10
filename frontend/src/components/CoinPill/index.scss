@@ -1,0 +1,26 @@
+.coin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 20rpx 12rpx 12rpx;
+  border: 5rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--orange-soft);
+  font-weight: 700;
+  font-size: 28rpx;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.coin-face {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: var(--yellow);
+  border: 4rpx solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  font-weight: 700;
+}

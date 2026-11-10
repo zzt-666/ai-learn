@@ -1,0 +1,77 @@
+.bank-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  min-height: calc(100vh - 160rpx);
+}
+
+.list-item {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  padding: 20rpx;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.deco {
+  width: 64rpx;
+  height: 64rpx;
+  border: 4rpx solid var(--ink);
+  border-radius: 16rpx;
+  flex-shrink: 0;
+}
+
+.deco.book {
+  background: var(--sky);
+}
+
+.deco.bulb {
+  background: var(--yellow);
+}
+
+.deco.pdf {
+  background: #ffb4a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta-sub {
+  display: block;
+  font-size: 22rpx;
+  color: var(--ink-soft);
+}
+
+.badge {
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 4rpx 14rpx;
+  border: 4rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--grass);
+  color: #fff;
+}
+
+.badge.doing {
+  background: var(--yellow);
+  color: var(--ink);
+}

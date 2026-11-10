@@ -1,0 +1,131 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 20rpx 32rpx;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--yellow);
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.btn.secondary {
+  background: var(--white);
+}
+
+.btn.sky {
+  background: var(--sky);
+}
+
+.btn.disabled {
+  opacity: 0.45;
+  filter: grayscale(0.3);
+}
+
+.hint {
+  font-size: 24rpx;
+  color: var(--ink-soft);
+}
+
+.hint.warn {
+  color: var(--tomato);
+  font-weight: 600;
+}
+
+.field-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.comic-bubble {
+  position: relative;
+  background: var(--white);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 20rpx 24rpx;
+  box-shadow: var(--shadow-sm);
+  font-size: 28rpx;
+}
+
+.comic-panel {
+  background: var(--white);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 24rpx;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin: 0 0 12rpx;
+}
+
+.section-label {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin: 8rpx 0 0;
+}
+
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  border: 4rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--sky);
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.type-chip.multi {
+  background: #ffb4a8;
+}
+
+.type-chip.bool {
+  background: #c8f0c8;
+}
+
+.page-shell {
+  min-height: 100vh;
+  background: var(--screen);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-body {
+  flex: 1;
+  padding: 16rpx 28rpx 24rpx;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+}
+
+.page-body.immersive {
+  padding-bottom: 24rpx;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.row {
+  display: flex;
+  gap: 20rpx;
+  align-items: flex-start;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.mt-auto {
+  margin-top: auto;
+}

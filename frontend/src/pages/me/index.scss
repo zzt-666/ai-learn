@@ -1,0 +1,61 @@
+.me-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.me-hero {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48rpx;
+  padding: 4rpx 16rpx;
+  border: 4rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--yellow);
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.pill.xp {
+  background: #eef2ff;
+}
+
+.pill.coin {
+  background: var(--orange-soft);
+}
+
+.list-item {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  padding: 20rpx;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.meta-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.meta-sub {
+  display: block;
+  font-size: 22rpx;
+  color: var(--ink-soft);
+}

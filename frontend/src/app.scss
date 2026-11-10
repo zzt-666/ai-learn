@@ -1,0 +1,48 @@
+page {
+  --bg: #fff3e6;
+  --screen: #fff8f1;
+  --ink: #1a1a1a;
+  --ink-soft: #5a5a5a;
+  --yellow: #ff9f3c;
+  --yellow-hot: #f07828;
+  --orange-soft: #ffd2a6;
+  --sky: #7ec8e3;
+  --tomato: #e85d4c;
+  --grass: #5cb85c;
+  --white: #ffffff;
+  --xp: #6c8cff;
+  --shadow-sm: 4rpx 4rpx 0 #1a1a1a;
+  --radius: 28rpx;
+  --radius-sm: 20rpx;
+  --stroke: 5rpx;
+  --font: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--screen);
+  box-sizing: border-box;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+view,
+text,
+button,
+textarea,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  line-height: inherit;
+  font-size: inherit;
+  color: inherit;
+
+  &::after {
+    border: none;
+  }
+}
