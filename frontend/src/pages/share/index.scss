@@ -5,13 +5,10 @@
 .share-body {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 0;
   height: 100vh;
   padding: 16rpx 28rpx 40rpx;
-}
-
-.center {
-  text-align: center;
+  box-sizing: border-box;
 }
 
 .share-poster {
@@ -24,6 +21,7 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  box-sizing: border-box;
 }
 
 .poster-brand {
@@ -55,46 +53,49 @@
   box-shadow: var(--shadow-sm);
 }
 
-.acc-block {
-  width: 144rpx;
-  height: 144rpx;
-  border: 10rpx solid var(--yellow);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+/* 仅本页海报内正确率字号，避免圆环偏小显得挤 */
+.score-summary .acc-num {
+  font-size: 40rpx;
 }
 
-.acc-num {
-  font-size: 32rpx;
-  font-weight: 800;
-}
-
-.acc-label {
-  font-size: 18rpx;
-  color: var(--ink-soft);
+.score-summary .acc-label {
+  font-size: 20rpx;
 }
 
 .score-pair {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row;
   gap: 12rpx;
+  min-width: 0;
 }
 
 .stat {
+  flex: 1;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-sm);
   background: var(--white);
   text-align: center;
-  padding: 12rpx 4rpx;
+  padding: 10rpx 4rpx;
+  min-height: 88rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.stat.ok {
+  background: #d8f5d8;
+}
+
+.stat.bad {
+  background: #ffd4ce;
 }
 
 .stat-b {
   display: block;
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: 700;
 }
 
@@ -161,4 +162,11 @@
   font-size: 24rpx;
   line-height: 1.4;
   color: var(--ink-soft);
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+  margin-top: 40rpx;
 }

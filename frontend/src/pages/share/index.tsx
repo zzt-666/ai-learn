@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+import AccuracyRing from '../../components/AccuracyRing'
 import Mascot from '../../components/Mascot'
 import type { QuizSession } from '../../types/quiz'
 import { loadSession } from '../../utils/storage'
@@ -31,7 +32,6 @@ export default function SharePage() {
   return (
     <View className='page-shell share-shell'>
       <ScrollView scrollY className='page-body immersive share-body'>
-        <Text className='hint center'>先生成海报，再发给好友扫码开闯</Text>
         <View className='share-poster'>
           <View className='poster-brand'>
             <Mascot mood='cheer' size='tiny' />
@@ -42,16 +42,13 @@ export default function SharePage() {
           </View>
           <Text className='poster-title'>我通关了「{session.topic_name}」</Text>
           <View className='score-summary compact'>
-            <View className='acc-block'>
-              <Text className='acc-num'>{accuracyPct}%</Text>
-              <Text className='acc-label'>正确率</Text>
-            </View>
+            <AccuracyRing percent={accuracyPct} size={160} />
             <View className='score-pair'>
-              <View className='stat'>
+              <View className='stat ok'>
                 <Text className='stat-b'>{report.correct_count}</Text>
                 <Text className='stat-s'>答对</Text>
               </View>
-              <View className='stat'>
+              <View className='stat bad'>
                 <Text className='stat-b'>{report.wrong_count}</Text>
                 <Text className='stat-s'>答错</Text>
               </View>
@@ -75,17 +72,19 @@ export default function SharePage() {
           </View>
         </View>
 
-        <View
-          className='btn'
-          onClick={() => Taro.showToast({ title: '示意按钮，本期不接微信分享', icon: 'none' })}
-        >
-          分享给微信好友
-        </View>
-        <View
-          className='btn secondary'
-          onClick={() => Taro.showToast({ title: '示意按钮，本期不接存相册', icon: 'none' })}
-        >
-          保存海报到相册
+        <View className='share-actions'>
+          <View
+            className='btn'
+            onClick={() => Taro.showToast({ title: '示意按钮，本期不接微信分享', icon: 'none' })}
+          >
+            分享给微信好友
+          </View>
+          <View
+            className='btn secondary'
+            onClick={() => Taro.showToast({ title: '示意按钮，本期不接存相册', icon: 'none' })}
+          >
+            保存海报到相册
+          </View>
         </View>
       </ScrollView>
     </View>

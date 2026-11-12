@@ -90,7 +90,7 @@ export default function ReportPage() {
           </View>
 
           <View className='score-summary'>
-            <AccuracyRing percent={accuracyPct} />
+            <AccuracyRing percent={accuracyPct} size={216} />
             <View className='score-pair'>
               <View className='stat ok'>
                 <Text className='stat-b'>{report.correct_count}</Text>

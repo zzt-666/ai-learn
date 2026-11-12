@@ -28,9 +28,6 @@ export default function HistoryReportPage() {
       setDetail(d)
       setReport(r)
       setError('')
-      Taro.setNavigationBarTitle({
-        title: d.topic_name.length > 12 ? `${d.topic_name.slice(0, 12)}…` : d.topic_name,
-      })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '报告加载失败')
     }
@@ -119,7 +116,7 @@ export default function HistoryReportPage() {
           </View>
 
           <View className='score-summary'>
-            <AccuracyRing percent={accuracyPct} />
+            <AccuracyRing percent={accuracyPct} size={216} />
             <View className='score-pair'>
               <View className='stat ok'>
                 <Text className='stat-b'>{report.correct_count}</Text>
