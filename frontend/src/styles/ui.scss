@@ -76,6 +76,8 @@
 .type-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  max-width: 120rpx;
   padding: 4rpx 16rpx;
   border: 4rpx solid var(--ink);
   border-radius: 999rpx;
@@ -102,11 +104,12 @@
 .page-body {
   flex: 1;
   padding: 16rpx 28rpx 24rpx;
-  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  /* TabBar 高度 + 内容间距 + 安全区，避免贴边 */
+  padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
 }
 
 .page-body.immersive {
-  padding-bottom: 24rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
 }
 
 .stack {

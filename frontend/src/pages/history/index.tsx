@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import Mascot from '../../components/Mascot'
-import TabBar from '../../components/TabBar'
 import type { HistoryItem } from '../../types/user'
 import { ApiError, fetchHistory } from '../../utils/api'
 import { accuracyPercent, formatFinishedAt } from '../../utils/format'
@@ -30,14 +29,9 @@ export default function HistoryPage() {
 
   return (
     <View className='page-shell'>
-      <View className='page-body history-body'>
-        <View className='btn ghost back' onClick={() => Taro.navigateBack()}>
-          ← 我的
-        </View>
-
+      <View className='page-body history-body immersive'>
         {items && items.length === 0 && !error ? (
           <View className='empty'>
-            <Text className='panel-title'>闯关历史</Text>
             <Mascot mood='sweat' size='lg' />
             <Text className='empty-title'>这儿空空如也</Text>
             <Text className='hint empty-hint'>
@@ -53,13 +47,6 @@ export default function HistoryPage() {
           </View>
         ) : (
           <>
-            <View className='row head'>
-              <Text className='panel-title' style={{ marginBottom: 0 }}>
-                闯关历史
-              </Text>
-              <View className='deco book' />
-            </View>
-
             {error ? (
               <View className='comic-panel'>
                 <Text className='hint warn'>{error}</Text>
@@ -74,16 +61,24 @@ export default function HistoryPage() {
                 key={item.id}
                 className='list-item'
                 onClick={() =>
-                  Taro.navigateTo({ url: `/pages/history/detail?id=${item.id}` })
+                  Taro.navigateTo({ url: `/pages/history/report?id=${item.id}` })
                 }
               >
                 <Mascot mood='idle' size='tiny' />
                 <View className='meta grow'>
                   <Text className='meta-title'>{item.topic_name}</Text>
                   <Text className='meta-sub'>
-                    {formatFinishedAt(item.finished_at)} · {accuracyPercent(item.accuracy)}% · +
-                    {item.exp_gained} EXP · +{item.points_gained} 积分
+                    {formatFinishedAt(item.finished_at)} · 正确率：
+                    {accuracyPercent(item.accuracy)}%
                   </Text>
+                  <View className='history-reward-tags'>
+                    <Text className='history-tag history-tag-xp'>
+                      +{item.exp_gained} EXP
+                    </Text>
+                    <Text className='history-tag history-tag-pts'>
+                      +{item.points_gained} 积分
+                    </Text>
+                  </View>
                 </View>
                 <Text className='badge'>已通关</Text>
               </View>
@@ -91,7 +86,6 @@ export default function HistoryPage() {
           </>
         )}
       </View>
-      <TabBar active='me' />
     </View>
   )
 }

@@ -1,20 +1,21 @@
 .me-body {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 24rpx;
 }
 
 .me-hero {
   display: flex;
-  gap: 20rpx;
+  gap: 24rpx;
   align-items: center;
+  padding: 8rpx 4rpx 12rpx;
 }
 
 .avatar-btn {
-  width: 96rpx !important;
-  height: 96rpx !important;
+  width: 120rpx !important;
+  height: 120rpx !important;
   padding: 0 !important;
-  border-radius: 24rpx !important;
+  border-radius: 28rpx !important;
   overflow: hidden;
   border: var(--stroke) solid var(--ink) !important;
   background: var(--orange-soft) !important;
@@ -24,15 +25,30 @@
 }
 
 .avatar-img {
-  width: 96rpx;
-  height: 96rpx;
+  width: 120rpx;
+  height: 120rpx;
 }
 
 .nickname-input {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 700;
   margin-bottom: 8rpx;
-  min-height: 48rpx;
+  min-height: 52rpx;
+  border-bottom: 4rpx solid transparent;
+  padding-bottom: 4rpx;
+}
+
+.nickname-input.editing {
+  border-bottom-color: var(--ink);
+}
+
+.level-card,
+.list-item {
+  padding: 30rpx;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
 }
 
 .level-card {
@@ -40,11 +56,6 @@
   grid-template-columns: auto 1fr;
   gap: 20rpx;
   align-items: center;
-  padding: 24rpx;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  box-shadow: var(--shadow-sm);
 }
 
 .lv-badge {
@@ -111,11 +122,6 @@
   display: flex;
   gap: 20rpx;
   align-items: center;
-  padding: 20rpx;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  box-shadow: var(--shadow-sm);
 }
 
 .meta-title {

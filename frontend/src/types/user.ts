@@ -22,6 +22,7 @@ export interface HistoryItem {
   topic_name: string
   finished_at: string
   accuracy: number
+  question_count: number
   exp_gained: number
   points_gained: number
   status: string

@@ -90,6 +90,7 @@ def test_complete_session_awards_and_lists(client, auth_headers):
     assert items[0]["id"] == session_id
     assert items[0]["status"] == "completed"
     assert items[0]["exp_gained"] == 60
+    assert items[0]["question_count"] == 3
 
     detail = client.get(f"/api/v1/history/{session_id}", headers=auth_headers)
     assert detail.status_code == 200

@@ -6,6 +6,7 @@ import Mascot from '../../components/Mascot'
 import type { Question, QuizSession, UserAnswer } from '../../types/quiz'
 import { isCorrect, summarize } from '../../utils/grading'
 import { ApiError, completeSession, generateReport } from '../../utils/api'
+import { getCachedUser } from '../../utils/auth'
 import { clearSession, loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
@@ -18,12 +19,20 @@ const TYPE_LABEL: TypeLabel = {
   boolean: '判断',
 }
 
+function truncateTitle(title: string, max = 14): string {
+  if (title.length <= max) return title
+  return `${title.slice(0, max)}…`
+}
+
+const CORRECT_POINTS = 5
+
 export default function QuizPage() {
   const [session, setSession] = useState<QuizSession | null>(null)
   const [selected, setSelected] = useState<number[]>([])
   const [feedback, setFeedback] = useState(false)
   const [viewIndex, setViewIndex] = useState(0)
   const [reporting, setReporting] = useState(false)
+  const [displayPoints, setDisplayPoints] = useState(0)
 
   useDidShow(() => {
     const s = loadSession()
@@ -34,6 +43,10 @@ export default function QuizPage() {
     }
     setSession(s)
     setViewIndex(s.current_index)
+    Taro.setNavigationBarTitle({ title: truncateTitle(s.topic_name) })
+    const base = getCachedUser()?.points ?? 0
+    const earned = (s.answers || []).filter((a) => a?.is_correct).length * CORRECT_POINTS
+    setDisplayPoints(base + earned)
     const answered = s.answers[s.current_index]
     if (answered) {
       setSelected(answered.selected_indexes)
@@ -57,6 +70,7 @@ export default function QuizPage() {
     !feedback &&
     !isReviewingPast &&
     (question.type === 'multiple' ? selected.length >= 1 : selected.length === 1)
+  const progressPct = total > 0 ? Math.round(((viewIndex + 1) / total) * 100) : 0
 
   const persist = (next: QuizSession) => {
     setSession(next)
@@ -71,7 +85,6 @@ export default function QuizPage() {
       )
       return
     }
-    // 单选 / 判断：选中即提交
     const nextSelected = [idx]
     setSelected(nextSelected)
     submitAnswer(nextSelected)
@@ -97,6 +110,9 @@ export default function QuizPage() {
       current_index: viewIndex,
     }
     persist(next)
+    if (correct) {
+      setDisplayPoints((p) => p + CORRECT_POINTS)
+    }
     setFeedback(true)
   }
 
@@ -125,7 +141,6 @@ export default function QuizPage() {
       }
       return
     }
-    // 最后一题 → 生成报告
     await finishAndReport(session)
   }
 
@@ -182,8 +197,10 @@ export default function QuizPage() {
             : '记录保存失败，可稍后在报告页重试'
         Taro.showToast({ title: cmsg, icon: 'none', duration: 2500 })
       }
+      // 成功路径保持 loading，避免闪回最后一题
       Taro.redirectTo({ url: '/pages/report/index' })
     } catch (err) {
+      setReporting(false)
       const msg = err instanceof ApiError ? err.message : '报告生成失败'
       Taro.showModal({
         title: '报告翻车了',
@@ -198,8 +215,6 @@ export default function QuizPage() {
           }
         },
       })
-    } finally {
-      setReporting(false)
     }
   }
 
@@ -223,48 +238,20 @@ export default function QuizPage() {
       ) : (
         <>
           <ScrollView scrollY className='quiz-screen'>
-            <View className='quiz-top'>
-              <View
-                className='quiz-icon-btn'
-                onClick={() =>
-                  Taro.showModal({
-                    title: '退出本局？',
-                    content: '本期不支持断点续玩，退出后需重新开局。',
-                    success: (res) => {
-                      if (res.confirm) {
-                        clearSession()
-                        Taro.reLaunch({ url: '/pages/home/index' })
-                      }
-                    },
-                  })
-                }
-              >
-                ×
-              </View>
-              <View className='quiz-index-badge'>
-                <Text>
-                  {viewIndex + 1}/{total}
-                </Text>
-              </View>
-              <CoinPill value={360} />
-            </View>
-
-            <View className='quiz-topic'>
-              <Mascot
-                mood={feedback ? (isCorrectNow ? 'happy' : 'sweat') : 'think'}
-                size='sm'
-              />
-              <View>
-                <Text className='topic-name'>{session.topic_name}</Text>
-                <Text className='hint'>
-                  {TYPE_LABEL[question.type]} · {feedback ? '已判题' : '材料闯关'}
-                </Text>
-              </View>
+            <View className='quiz-meta-row'>
+              <Text className='hint'>
+                {TYPE_LABEL[question.type]} · {feedback ? '已判题' : '材料闯关'}
+              </Text>
+              <CoinPill value={displayPoints} />
             </View>
 
             <Text className='quiz-progress'>
               第 {viewIndex + 1} 题 / 共 {total} 题
             </Text>
+            <View className='quiz-progress-track'>
+              <View className='quiz-progress-fill' style={{ width: `${progressPct}%` }} />
+            </View>
+
             <Text className='quiz-stem'>{question.stem}</Text>
 
             <View className='quiz-options'>
@@ -283,7 +270,8 @@ export default function QuizPage() {
                     className={classes.join(' ')}
                     onClick={() => toggleOption(idx)}
                   >
-                    {feedback && (question.answer_indexes.includes(idx) || selected.includes(idx)) ? (
+                    {feedback &&
+                    (question.answer_indexes.includes(idx) || selected.includes(idx)) ? (
                       <Text className='dot'>
                         {question.answer_indexes.includes(idx) ? '✓' : '✗'}
                       </Text>
@@ -301,29 +289,33 @@ export default function QuizPage() {
                   <View className='grow'>
                     <Text>{isCorrectNow ? '漂亮，拿下！ · 答对了' : '差一点点！ · 答错了'}</Text>
                     <View className='gain-line'>
-                      <Text className='xp-gain'>{isCorrectNow ? '+20 EXP' : '+5 EXP（参与奖）'}</Text>
-                      <Text className='coin-gain'>{isCorrectNow ? '+5 积分' : '积分无加成'}</Text>
+                      <Text className='xp-gain'>
+                        {isCorrectNow ? '+20 EXP' : '+5 EXP（参与奖）'}
+                      </Text>
+                      <Text className='coin-gain'>
+                        {isCorrectNow ? '+5 积分' : '积分无加成'}
+                      </Text>
                     </View>
                   </View>
                 </View>
                 <View className={`feedback-sheet ${isCorrectNow ? 'ok' : 'bad'}`}>
                   <Text className='sheet-title'>知识讲解</Text>
-                  <Text className='sheet-body'>
-                    正确答案：
-                    {question.answer_indexes.map((i) => question.options[i]).join('、')}
-                    {'\n'}
-                    {question.explanation}
-                  </Text>
+                  <Text className='sheet-body'>{question.explanation}</Text>
                 </View>
               </>
             ) : null}
+
+            <View className='quiz-scroll-spacer' />
           </ScrollView>
 
           {showFooter ? (
             <View className='quiz-footer'>
               {feedback ? (
                 <View className='btn-row'>
-                  <View className={`btn secondary ${viewIndex === 0 ? 'disabled' : ''}`} onClick={goPrev}>
+                  <View
+                    className={`btn secondary ${viewIndex === 0 ? 'disabled' : ''}`}
+                    onClick={goPrev}
+                  >
                     上一题
                   </View>
                   <View className='btn' onClick={goNext}>

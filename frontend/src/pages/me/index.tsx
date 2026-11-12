@@ -1,37 +1,42 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { View, Text, Input, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import Mascot from '../../components/Mascot'
 import TabBar from '../../components/TabBar'
 import type { UserPublic } from '../../types/user'
-import { ApiError, API_BASE, fetchMe, updateNickname, uploadAvatar } from '../../utils/api'
+import { ApiError, fetchMe, updateNickname, uploadAvatar } from '../../utils/api'
 import { ensureLogin, getCachedUser, isLoggedIn, logoutLocal } from '../../utils/auth'
+import { resolveAvatarUrl } from '../../utils/avatar'
 import '../../styles/ui.scss'
 import './index.scss'
-
-function avatarSrc(url: string | null | undefined): string {
-  if (!url) return ''
-  if (url.startsWith('http')) return url
-  return `${API_BASE}${url}`
-}
 
 export default function MePage() {
   const [user, setUser] = useState<UserPublic | null>(null)
   const [nicknameDraft, setNicknameDraft] = useState('阿衰同学')
+  const [editingNick, setEditingNick] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loginError, setLoginError] = useState('')
+  const draftRef = useRef('阿衰同学')
+  const savedNickRef = useRef('阿衰同学')
+  const savingNickRef = useRef(false)
+
+  const syncNicknameLocal = (name: string) => {
+    setNicknameDraft(name)
+    draftRef.current = name
+    savedNickRef.current = name
+  }
 
   const load = async () => {
     try {
       await ensureLogin()
       const fresh = await fetchMe()
       setUser(fresh)
-      setNicknameDraft(fresh.nickname)
+      syncNicknameLocal(fresh.nickname)
       setLoginError('')
     } catch (err) {
       const cached = getCachedUser()
       setUser(cached)
-      setNicknameDraft(cached?.nickname || '阿衰同学')
+      syncNicknameLocal(cached?.nickname || '阿衰同学')
       setLoginError(err instanceof ApiError ? err.message : '登录失败，请重试')
     }
   }
@@ -40,7 +45,7 @@ export default function MePage() {
     const cached = getCachedUser()
     if (cached) {
       setUser(cached)
-      setNicknameDraft(cached.nickname)
+      syncNicknameLocal(cached.nickname)
     }
     load()
   })
@@ -63,17 +68,23 @@ export default function MePage() {
     }
   }
 
-  const saveNickname = async () => {
-    const name = nicknameDraft.trim()
+  /** 失焦后的统一保存：有变化才请求并提示，无变化静默返回 */
+  const saveNickname = async (raw?: string) => {
+    const name = (raw ?? draftRef.current).trim()
+    setEditingNick(false)
     if (!name) {
+      syncNicknameLocal(savedNickRef.current || '阿衰同学')
       Taro.showToast({ title: '昵称不能为空', icon: 'none' })
       return
     }
+    if (name === savedNickRef.current) return
+    if (savingNickRef.current) return
+    savingNickRef.current = true
     try {
       setSaving(true)
       const u = await updateNickname(name)
       setUser(u)
-      setNicknameDraft(u.nickname)
+      syncNicknameLocal(u.nickname)
       Taro.showToast({ title: '昵称已保存', icon: 'success' })
     } catch (err) {
       Taro.showToast({
@@ -81,6 +92,7 @@ export default function MePage() {
         icon: 'none',
       })
     } finally {
+      savingNickRef.current = false
       setSaving(false)
     }
   }
@@ -88,13 +100,14 @@ export default function MePage() {
   const logout = () => {
     logoutLocal()
     setUser(null)
-    setNicknameDraft('阿衰同学')
+    syncNicknameLocal('阿衰同学')
     Taro.showToast({ title: '已退出，需重新登录才能闯关', icon: 'none' })
   }
 
   const loggedIn = isLoggedIn() && user
   const expWithin = user ? user.exp % 300 : 0
   const progressPct = user ? Math.round(user.level_progress * 100) : 0
+  const avatar = resolveAvatarUrl(user?.avatar_url)
 
   return (
     <View className='page-shell'>
@@ -109,23 +122,53 @@ export default function MePage() {
           </View>
         ) : null}
 
-        <View className='me-hero comic-panel'>
+        <View className='me-hero'>
           <Button className='avatar-btn' openType='chooseAvatar' onChooseAvatar={onChooseAvatar}>
-            {user?.avatar_url ? (
-              <Image className='avatar-img' src={avatarSrc(user.avatar_url)} mode='aspectFill' />
+            {avatar ? (
+              <Image className='avatar-img' src={avatar} mode='aspectFill' />
             ) : (
               <Mascot mood='idle' size='sm' />
             )}
           </Button>
           <View className='grow'>
             <Input
-              className='nickname-input'
+              className={`nickname-input ${editingNick ? 'editing' : ''}`}
               type='nickname'
               maxlength={32}
               value={nicknameDraft}
               placeholder='阿衰同学'
-              onInput={(e) => setNicknameDraft(e.detail.value)}
-              onBlur={saveNickname}
+              onFocus={() => setEditingNick(true)}
+              onInput={(e) => {
+                // 主动输入：只更新本地，不发请求
+                const value = e.detail.value
+                setNicknameDraft(value)
+                draftRef.current = value
+              }}
+              onChange={(e) => {
+                // 选用微信昵称时经常不走 onInput，会走 change
+                const value = e.detail.value
+                setNicknameDraft(value)
+                draftRef.current = value
+                Taro.hideKeyboard({
+                  complete: () => {
+                    void saveNickname(value)
+                  },
+                })
+              }}
+              onNickNameReview={() => {
+                // 选用微信昵称后会触发审核；强制收起键盘失焦，由 onBlur 带出最新值并保存
+                Taro.hideKeyboard({
+                  complete: () => {
+                    void saveNickname(draftRef.current)
+                  },
+                })
+              }}
+              onBlur={(e) => {
+                const value = e.detail.value
+                setNicknameDraft(value)
+                draftRef.current = value
+                void saveNickname(value)
+              }}
             />
             <Text className='hint'>
               {loggedIn
@@ -142,9 +185,7 @@ export default function MePage() {
             <Text>{user?.level ?? 1}</Text>
           </View>
           <View className='grow'>
-            <Text className='lv-exp'>
-              经验值 {expWithin} / 300
-            </Text>
+            <Text className='lv-exp'>经验值 {expWithin} / 300</Text>
             <View className='xp-track'>
               <View className='xp-fill' style={{ width: `${progressPct}%` }} />
             </View>

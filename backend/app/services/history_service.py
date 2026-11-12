@@ -24,6 +24,7 @@ def list_history(db: Session, *, user: User, limit: int = 50) -> list[HistoryIte
             topic_name=row.topic_name,
             finished_at=row.finished_at,
             accuracy=float(row.accuracy),
+            question_count=row.question_count,
             exp_gained=row.exp_gained,
             points_gained=row.points_gained,
             status="completed",

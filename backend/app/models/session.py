@@ -30,6 +30,7 @@ class HistoryItem(BaseModel):
     topic_name: str
     finished_at: datetime
     accuracy: float
+    question_count: int
     exp_gained: int
     points_gained: int
     status: str = "completed"

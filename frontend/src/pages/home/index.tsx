@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Textarea } from '@tarojs/components'
+import { View, Text, Textarea, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
@@ -7,7 +7,8 @@ import TabBar from '../../components/TabBar'
 import type { HistoryItem, UserPublic } from '../../types/user'
 import { ApiError, fetchHistory } from '../../utils/api'
 import { ensureLogin, getCachedUser, isLoggedIn } from '../../utils/auth'
-import { accuracyPercent, formatFinishedAt } from '../../utils/format'
+import { resolveAvatarUrl } from '../../utils/avatar'
+import { accuracyPercent } from '../../utils/format'
 import { setPendingSourceText } from '../../utils/pending'
 import { hasSeenGuide, markGuideSeen } from '../../utils/storage'
 import '../../styles/ui.scss'
@@ -59,6 +60,7 @@ export default function HomePage() {
     const text = sourceText.trim()
     if (!text) {
       setEmptyWarn(true)
+      Taro.showToast({ title: '先贴点东西再开局', icon: 'none' })
       return
     }
     if (!isLoggedIn()) {
@@ -77,29 +79,39 @@ export default function HomePage() {
   if (showGuide) {
     return (
       <View className='page-shell guide-page'>
-        <Mascot mood='cheer' size='lg' />
-        <Text className='guide-title'>衰衰闯关</Text>
-        <Text className='guide-sub'>粘一段 → 开一局 → 边答边学</Text>
-        <View className='comic-bubble guide-bubble'>
-          哟，别光「看过」就完事。把笔记砸给我，我给你整套闯关题——答完还有复盘报告，兄弟罩你。
+        <View className='guide-main'>
+          <Mascot mood='cheer' size='lg' />
+          <Text className='guide-title'>衰衰闯关</Text>
+          <Text className='guide-sub'>粘一段 → 开一局 → 边答边学</Text>
+          <View className='comic-bubble guide-bubble'>
+            哟，别光「看过」就完事。把笔记砸给我，我给你整套闯关题——答完还有复盘报告，兄弟罩你。
+          </View>
         </View>
-        <View className='btn guide-btn' onClick={dismissGuide}>
-          开整！去粘贴 →
+        <View className='guide-bottom'>
+          <View className='btn guide-btn' onClick={dismissGuide}>
+            开整！去粘贴 →
+          </View>
+          <Text className='hint'>约 1 分钟搞懂怎么玩</Text>
         </View>
-        <Text className='hint'>约 1 分钟搞懂怎么玩</Text>
       </View>
     )
   }
 
   const nickname = user?.nickname || '阿衰同学'
-  const canStart = Boolean(sourceText.trim()) && isLoggedIn() && !loggingIn
+  const avatar = resolveAvatarUrl(user?.avatar_url)
 
   return (
     <View className='page-shell'>
       <View className='page-body home-body'>
         <View className='home-head'>
           <View className='hello-row'>
-            <View className='brand-mark' />
+            {avatar ? (
+              <Image className='home-avatar' src={avatar} mode='aspectFill' />
+            ) : (
+              <View className='home-avatar home-avatar-default'>
+                <Mascot mood='idle' size='tiny' />
+              </View>
+            )}
             <Text className='hello-inline'>你好呀，{nickname}</Text>
           </View>
           <CoinPill value={user?.points ?? 0} />
@@ -115,9 +127,7 @@ export default function HomePage() {
           </View>
         ) : null}
 
-        {loggingIn && !user ? (
-          <Text className='hint'>正在静默登录…</Text>
-        ) : null}
+        {loggingIn && !user ? <Text className='hint'>正在静默登录…</Text> : null}
 
         <View className='home-title-row'>
           <Text className='home-title'>今天想闯哪一关？</Text>
@@ -142,10 +152,9 @@ export default function HomePage() {
           ) : null}
         </View>
 
-        <View className={`btn ${canStart ? '' : 'disabled'}`} onClick={startQuiz}>
+        <View className='btn' onClick={startQuiz}>
           开始闯关！
         </View>
-        <Text className='hint'>登录后才能开局 · 主题名 AI 自动起</Text>
 
         <Text className='section-label'>直接开闯</Text>
         {recent.length === 0 ? (
@@ -157,13 +166,14 @@ export default function HomePage() {
                 key={item.id}
                 className='quick-pick'
                 onClick={() =>
-                  Taro.navigateTo({ url: `/pages/history/detail?id=${item.id}` })
+                  Taro.navigateTo({ url: `/pages/history/report?id=${item.id}` })
                 }
               >
                 <Text className='qp-title'>{item.topic_name}</Text>
                 <Text className='qp-sub'>
-                  {formatFinishedAt(item.finished_at)} · {accuracyPercent(item.accuracy)}% · 点此查看/重闯
+                  正确率：{accuracyPercent(item.accuracy)}% · {item.question_count || 0}题
                 </Text>
+                <Text className='qp-cta'>直接开闯</Text>
               </View>
             ))}
           </View>

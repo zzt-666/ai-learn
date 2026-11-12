@@ -1,10 +1,21 @@
 .guide-page {
-  padding: 80rpx 40rpx;
+  min-height: 100vh;
+  padding: 24rpx 40rpx calc(48rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.guide-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   gap: 24rpx;
-  min-height: 100vh;
+  padding-top: 48rpx;
 }
 
 .guide-title {
@@ -20,11 +31,19 @@
 .guide-bubble {
   text-align: left;
   max-width: 560rpx;
+  width: 100%;
+}
+
+.guide-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding-top: 48rpx;
 }
 
 .guide-btn {
   max-width: 560rpx;
-  margin-top: 24rpx;
 }
 
 .home-body {
@@ -53,13 +72,20 @@
   min-width: 0;
 }
 
-.brand-mark {
+.home-avatar {
   width: 64rpx;
   height: 64rpx;
   border-radius: 16rpx;
-  background: var(--yellow);
   border: 4rpx solid var(--ink);
   flex-shrink: 0;
+  overflow: hidden;
+  background: #ffd7b5;
+}
+
+.home-avatar-default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hello-inline {
@@ -117,13 +143,22 @@
   display: block;
   font-size: 28rpx;
   font-weight: 700;
-  margin-bottom: 4rpx;
+  margin-bottom: 8rpx;
 }
 
 .qp-sub {
   display: block;
   font-size: 22rpx;
   color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.qp-cta {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--yellow-hot);
 }
 
 .unfinished {
