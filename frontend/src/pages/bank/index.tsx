@@ -12,7 +12,7 @@ export default function BankPage() {
         <Text className='panel-title'>我的题库</Text>
         <Text className='hint'>存放导入与 AI 生成的题目，点开可再闯。</Text>
 
-        <View className='list-item' onClick={() => Taro.showToast({ title: '示意列表，本期不接逻辑', icon: 'none' })}>
+        <View className='list-item' onClick={() => Taro.showToast({ title: '即将上线', icon: 'none' })}>
           <View className='deco book' />
           <View className='meta'>
             <Text className='meta-title'>光合作用要点</Text>
@@ -21,7 +21,7 @@ export default function BankPage() {
           <Text className='badge'>可闯</Text>
         </View>
 
-        <View className='list-item' onClick={() => Taro.showToast({ title: '示意列表，本期不接逻辑', icon: 'none' })}>
+        <View className='list-item' onClick={() => Taro.showToast({ title: '即将上线', icon: 'none' })}>
           <View className='deco bulb' />
           <View className='meta'>
             <Text className='meta-title'>民法总则速记</Text>
@@ -30,7 +30,7 @@ export default function BankPage() {
           <Text className='badge'>可闯</Text>
         </View>
 
-        <View className='list-item' onClick={() => Taro.showToast({ title: '示意列表，本期不接逻辑', icon: 'none' })}>
+        <View className='list-item' onClick={() => Taro.showToast({ title: '即将上线', icon: 'none' })}>
           <View className='deco pdf'>
             <Text>PDF</Text>
           </View>
@@ -43,7 +43,7 @@ export default function BankPage() {
 
         <View
           className='btn secondary mt-auto'
-          onClick={() => Taro.showToast({ title: '示意按钮，本期不接导入', icon: 'none' })}
+          onClick={() => Taro.showToast({ title: '即将上线', icon: 'none' })}
         >
           导入题目 / 文档
         </View>

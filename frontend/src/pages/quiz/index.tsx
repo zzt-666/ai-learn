@@ -5,7 +5,7 @@ import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
 import type { Question, QuizSession, UserAnswer } from '../../types/quiz'
 import { isCorrect, summarize } from '../../utils/grading'
-import { ApiError, generateReport } from '../../utils/api'
+import { ApiError, completeSession, generateReport } from '../../utils/api'
 import { clearSession, loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
@@ -156,7 +156,32 @@ export default function QuizPage() {
         accuracy: stats.accuracy,
         items,
       })
-      persist({ ...s, report, status: 'done' })
+      let next: typeof s = { ...s, report, status: 'done', pending_complete: true }
+      persist(next)
+      try {
+        const completed = await completeSession({
+          topic_name: s.topic_name,
+          source_text: s.source_text,
+          questions: s.questions,
+          answers: s.answers,
+          report,
+          source_session_id: s.source_session_id ?? null,
+        })
+        next = {
+          ...next,
+          session_id: completed.session_id,
+          exp_gained: completed.exp_gained,
+          points_gained: completed.points_gained,
+          pending_complete: false,
+        }
+        persist(next)
+      } catch (completeErr) {
+        const cmsg =
+          completeErr instanceof ApiError
+            ? completeErr.message
+            : '记录保存失败，可稍后在报告页重试'
+        Taro.showToast({ title: cmsg, icon: 'none', duration: 2500 })
+      }
       Taro.redirectTo({ url: '/pages/report/index' })
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : '报告生成失败'

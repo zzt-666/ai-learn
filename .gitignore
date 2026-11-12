@@ -27,6 +27,10 @@ venv/
 *.tmp
 .cache/
 
+# 用户上传头像（保留目录占位）
+backend/uploads/avatars/*
+!backend/uploads/avatars/.gitkeep
+
 # Node / Taro
 node_modules/
 frontend/dist/

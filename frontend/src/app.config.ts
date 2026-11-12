@@ -6,6 +6,9 @@ export default defineAppConfig({
     'pages/generate/index',
     'pages/quiz/index',
     'pages/report/index',
+    'pages/history/index',
+    'pages/history/detail',
+    'pages/history/report',
     'pages/share/index',
   ],
   window: {

@@ -55,4 +55,9 @@ export interface QuizSession {
   current_index: number
   report?: ReportPayload | null
   status: 'answering' | 'reporting' | 'done'
+  source_session_id?: number | null
+  session_id?: number | null
+  exp_gained?: number | null
+  points_gained?: number | null
+  pending_complete?: boolean
 }

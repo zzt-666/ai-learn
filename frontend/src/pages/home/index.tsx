@@ -4,6 +4,10 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
 import TabBar from '../../components/TabBar'
+import type { HistoryItem, UserPublic } from '../../types/user'
+import { ApiError, fetchHistory } from '../../utils/api'
+import { ensureLogin, getCachedUser, isLoggedIn } from '../../utils/auth'
+import { accuracyPercent, formatFinishedAt } from '../../utils/format'
 import { setPendingSourceText } from '../../utils/pending'
 import { hasSeenGuide, markGuideSeen } from '../../utils/storage'
 import '../../styles/ui.scss'
@@ -13,9 +17,37 @@ export default function HomePage() {
   const [showGuide, setShowGuide] = useState(false)
   const [sourceText, setSourceText] = useState('')
   const [emptyWarn, setEmptyWarn] = useState(false)
+  const [user, setUser] = useState<UserPublic | null>(null)
+  const [loginError, setLoginError] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+  const [recent, setRecent] = useState<HistoryItem[]>([])
+
+  const refresh = async () => {
+    setLoggingIn(true)
+    setLoginError('')
+    try {
+      const u = await ensureLogin()
+      setUser(u)
+      try {
+        const list = await fetchHistory(2)
+        setRecent(list.slice(0, 2))
+      } catch {
+        setRecent([])
+      }
+    } catch (err) {
+      setUser(null)
+      setRecent([])
+      setLoginError(err instanceof ApiError ? err.message : '登录失败，请重试')
+    } finally {
+      setLoggingIn(false)
+    }
+  }
 
   useDidShow(() => {
     setShowGuide(!hasSeenGuide())
+    const cached = getCachedUser()
+    if (cached) setUser(cached)
+    refresh()
   })
 
   const dismissGuide = () => {
@@ -23,10 +55,18 @@ export default function HomePage() {
     setShowGuide(false)
   }
 
-  const startQuiz = () => {
+  const startQuiz = async () => {
     const text = sourceText.trim()
     if (!text) {
       setEmptyWarn(true)
+      return
+    }
+    if (!isLoggedIn()) {
+      Taro.showToast({
+        title: loggingIn ? '正在登录…' : '请先登录后再闯关',
+        icon: 'none',
+      })
+      if (!loggingIn) await refresh()
       return
     }
     setEmptyWarn(false)
@@ -51,16 +91,33 @@ export default function HomePage() {
     )
   }
 
+  const nickname = user?.nickname || '阿衰同学'
+  const canStart = Boolean(sourceText.trim()) && isLoggedIn() && !loggingIn
+
   return (
     <View className='page-shell'>
       <View className='page-body home-body'>
         <View className='home-head'>
           <View className='hello-row'>
             <View className='brand-mark' />
-            <Text className='hello-inline'>你好呀，阿衰同学</Text>
+            <Text className='hello-inline'>你好呀，{nickname}</Text>
           </View>
-          <CoinPill value={360} />
+          <CoinPill value={user?.points ?? 0} />
         </View>
+
+        {loginError ? (
+          <View className='comic-panel login-fail'>
+            <Text className='panel-title'>登录没成功</Text>
+            <Text className='hint warn'>{loginError}</Text>
+            <View className='btn secondary' onClick={refresh}>
+              重试登录
+            </View>
+          </View>
+        ) : null}
+
+        {loggingIn && !user ? (
+          <Text className='hint'>正在静默登录…</Text>
+        ) : null}
 
         <View className='home-title-row'>
           <Text className='home-title'>今天想闯哪一关？</Text>
@@ -85,29 +142,39 @@ export default function HomePage() {
           ) : null}
         </View>
 
-        <View
-          className={`btn ${sourceText.trim() ? '' : 'disabled'}`}
-          onClick={startQuiz}
-        >
+        <View className={`btn ${canStart ? '' : 'disabled'}`} onClick={startQuiz}>
           开始闯关！
         </View>
-        <Text className='hint'>材料优先出题 · 主题名 AI 自动起，不用你填</Text>
+        <Text className='hint'>登录后才能开局 · 主题名 AI 自动起</Text>
 
         <Text className='section-label'>直接开闯</Text>
-        <View className='quick-picks'>
-          <View className='quick-pick' onClick={() => Taro.showToast({ title: '示意入口，本期不接逻辑', icon: 'none' })}>
-            <Text className='qp-title'>光合作用要点</Text>
-            <Text className='qp-sub'>题库 · 6 题 · 点此开闯</Text>
+        {recent.length === 0 ? (
+          <Text className='hint'>通关后，最近两局会出现在这里，点一下就能重闯。</Text>
+        ) : (
+          <View className='quick-picks'>
+            {recent.map((item) => (
+              <View
+                key={item.id}
+                className='quick-pick'
+                onClick={() =>
+                  Taro.navigateTo({ url: `/pages/history/detail?id=${item.id}` })
+                }
+              >
+                <Text className='qp-title'>{item.topic_name}</Text>
+                <Text className='qp-sub'>
+                  {formatFinishedAt(item.finished_at)} · {accuracyPercent(item.accuracy)}% · 点此查看/重闯
+                </Text>
+              </View>
+            ))}
           </View>
-          <View className='quick-pick' onClick={() => Taro.showToast({ title: '示意入口，本期不接逻辑', icon: 'none' })}>
-            <Text className='qp-title'>民法总则速记</Text>
-            <Text className='qp-sub'>题库 · 10 题 · 点此开闯</Text>
-          </View>
-        </View>
+        )}
 
         <Text className='section-label'>未完成的闯关</Text>
         <View className='unfinished'>
-          <View className='unfinished-item' onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}>
+          <View
+            className='unfinished-item'
+            onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}
+          >
             <View className='ico'>
               <Mascot mood='think' size='tiny' />
             </View>
@@ -117,7 +184,10 @@ export default function HomePage() {
             </View>
             <View className='ring-text'>60%</View>
           </View>
-          <View className='unfinished-item' onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}>
+          <View
+            className='unfinished-item'
+            onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}
+          >
             <View className='ico bulb'>
               <Text>💡</Text>
             </View>

@@ -3,6 +3,7 @@ import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import Mascot from '../../components/Mascot'
 import { ApiError, generateQuiz } from '../../utils/api'
+import { ensureLogin } from '../../utils/auth'
 import { takePendingSourceText, setPendingSourceText } from '../../utils/pending'
 import { saveSession } from '../../utils/storage'
 import type { QuizSession } from '../../types/quiz'
@@ -20,6 +21,7 @@ export default function GeneratePage() {
     setPhase('loading')
     setSourceText(text)
     try {
+      await ensureLogin()
       const quiz = await generateQuiz({
         source_text: text,
         question_count: 6,

@@ -57,3 +57,9 @@ class QuizGenerateRequest(BaseModel):
 class QuizPayload(BaseModel):
     topic_name: str
     questions: list[Question] = Field(min_length=1)
+
+
+class UserAnswer(BaseModel):
+    question_id: str
+    selected_indexes: list[int] = Field(min_length=1)
+    is_correct: bool

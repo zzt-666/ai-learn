@@ -22,7 +22,7 @@ def _mock_report() -> ReportPayload:
     )
 
 
-def test_generate_report_success(client):
+def test_generate_report_success(client, auth_headers):
     payload = {
         "topic_name": "光合作用要点闯关",
         "source_text_excerpt": "叶绿体是光合作用的主要场所。",
@@ -53,7 +53,11 @@ def test_generate_report_success(client):
         ],
     }
     with patch("app.routers.report.generate_report", return_value=_mock_report()):
-        response = client.post("/api/v1/report/generate", json=payload)
+        response = client.post(
+            "/api/v1/report/generate",
+            headers=auth_headers,
+            json=payload,
+        )
     assert response.status_code == 200
     data = response.json()
     assert data["correct_count"] == 1
@@ -62,7 +66,7 @@ def test_generate_report_success(client):
     assert len(data["wrong_review"]) == 1
 
 
-def test_generate_report_failed(client):
+def test_generate_report_failed(client, auth_headers):
     payload = {
         "topic_name": "测试",
         "source_text_excerpt": "材料",
@@ -86,6 +90,10 @@ def test_generate_report_failed(client):
         "app.routers.report.generate_report",
         side_effect=RuntimeError("报告失败"),
     ):
-        response = client.post("/api/v1/report/generate", json=payload)
+        response = client.post(
+            "/api/v1/report/generate",
+            headers=auth_headers,
+            json=payload,
+        )
     assert response.status_code == 502
     assert response.json()["error_code"] == "REPORT_FAILED"

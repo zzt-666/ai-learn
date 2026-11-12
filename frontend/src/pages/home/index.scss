@@ -33,6 +33,12 @@
   gap: 20rpx;
 }
 
+.login-fail {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
 .home-head {
   display: flex;
   align-items: center;

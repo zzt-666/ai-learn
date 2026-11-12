@@ -59,10 +59,11 @@ def _mock_payload() -> QuizPayload:
     )
 
 
-def test_generate_quiz_success(client):
+def test_generate_quiz_success(client, auth_headers):
     with patch("app.routers.quiz.generate_quiz", return_value=_mock_payload()) as mocked:
         response = client.post(
             "/api/v1/quiz/generate",
+            headers=auth_headers,
             json={"source_text": "叶绿体是光合作用的主要场所。", "question_count": 6},
         )
     assert response.status_code == 200
@@ -72,21 +73,23 @@ def test_generate_quiz_success(client):
     mocked.assert_called_once()
 
 
-def test_generate_quiz_empty_text(client):
+def test_generate_quiz_empty_text(client, auth_headers):
     response = client.post(
         "/api/v1/quiz/generate",
+        headers=auth_headers,
         json={"source_text": "  "},
     )
     assert response.status_code == 422
 
 
-def test_generate_quiz_failed(client):
+def test_generate_quiz_failed(client, auth_headers):
     with patch(
         "app.routers.quiz.generate_quiz",
         side_effect=RuntimeError("上游失败"),
     ):
         response = client.post(
             "/api/v1/quiz/generate",
+            headers=auth_headers,
             json={"source_text": "光合作用材料"},
         )
     assert response.status_code == 502

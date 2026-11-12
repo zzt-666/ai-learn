@@ -3,12 +3,14 @@ import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import Mascot from '../../components/Mascot'
 import type { QuizSession } from '../../types/quiz'
-import { clearSession, loadSession } from '../../utils/storage'
+import { ApiError, completeSession } from '../../utils/api'
+import { clearSession, loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
 
 export default function ReportPage() {
   const [session, setSession] = useState<QuizSession | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useDidShow(() => {
     const s = loadSession()
@@ -34,6 +36,43 @@ export default function ReportPage() {
     clearSession()
     Taro.reLaunch({ url: '/pages/home/index' })
   }
+
+  const retryComplete = async () => {
+    if (!session.report || saving) return
+    setSaving(true)
+    try {
+      const completed = await completeSession({
+        topic_name: session.topic_name,
+        source_text: session.source_text,
+        questions: session.questions,
+        answers: session.answers,
+        report: session.report,
+        source_session_id: session.source_session_id ?? null,
+      })
+      const next = {
+        ...session,
+        session_id: completed.session_id,
+        exp_gained: completed.exp_gained,
+        points_gained: completed.points_gained,
+        pending_complete: false,
+      }
+      saveSession(next)
+      setSession(next)
+      Taro.showToast({ title: '记录已保存', icon: 'success' })
+    } catch (err) {
+      Taro.showToast({
+        title: err instanceof ApiError ? err.message : '保存失败，请重试',
+        icon: 'none',
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const expText =
+    session.exp_gained != null ? `+${session.exp_gained} EXP` : '结算中…'
+  const pointsText =
+    session.points_gained != null ? `+${session.points_gained} 积分` : '—'
 
   return (
     <View className='page-shell'>
@@ -69,12 +108,27 @@ export default function ReportPage() {
         <View className='comic-panel'>
           <Text className='panel-title'>本局收获</Text>
           <View className='reward-row'>
-            <Text className='reward-chip xp'>+95 EXP</Text>
-            <Text className='reward-chip'>+28 积分</Text>
+            <Text className='reward-chip xp'>{expText}</Text>
+            <Text className='reward-chip'>{pointsText}</Text>
           </View>
-          <Text className='hint' style={{ marginTop: '16rpx' }}>
-            答对多、连续答对有小加成。（示意展示）
-          </Text>
+          {session.pending_complete ? (
+            <>
+              <Text className='hint warn' style={{ marginTop: '16rpx' }}>
+                记录还没存上云，积分可能未到账。点下面重试一下。
+              </Text>
+              <View
+                className={`btn secondary ${saving ? 'disabled' : ''}`}
+                style={{ marginTop: '16rpx' }}
+                onClick={retryComplete}
+              >
+                {saving ? '保存中…' : '重试保存记录'}
+              </View>
+            </>
+          ) : (
+            <Text className='hint' style={{ marginTop: '16rpx' }}>
+              已按正确率结算 EXP / 积分，可在「我的」查看成长。
+            </Text>
+          )}
         </View>
 
         <View className='comic-panel'>
@@ -117,12 +171,6 @@ export default function ReportPage() {
           ))}
         </View>
 
-        <View
-          className='btn sky'
-          onClick={() => Taro.navigateTo({ url: '/pages/share/index' })}
-        >
-          生成海报并分享
-        </View>
         <View className='btn' onClick={again}>
           再来一局
         </View>
