@@ -4,10 +4,9 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
 import type { Question, QuizSession, UserAnswer } from '../../types/quiz'
-import { isCorrect, summarize } from '../../utils/grading'
-import { ApiError, completeSession, generateReport } from '../../utils/api'
+import { isCorrect } from '../../utils/grading'
 import { getCachedUser } from '../../utils/auth'
-import { clearSession, loadSession, saveSession } from '../../utils/storage'
+import { loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
 
@@ -31,7 +30,6 @@ export default function QuizPage() {
   const [selected, setSelected] = useState<number[]>([])
   const [feedback, setFeedback] = useState(false)
   const [viewIndex, setViewIndex] = useState(0)
-  const [reporting, setReporting] = useState(false)
   const [displayPoints, setDisplayPoints] = useState(0)
 
   useDidShow(() => {
@@ -39,6 +37,11 @@ export default function QuizPage() {
     if (!s || !s.questions?.length) {
       Taro.showToast({ title: '没有进行中的闯关', icon: 'none' })
       Taro.reLaunch({ url: '/pages/home/index' })
+      return
+    }
+    // Already finished reporting elsewhere — bounce to report.
+    if (s.report || s.status === 'reporting' || s.status === 'done') {
+      Taro.redirectTo({ url: '/pages/report/index' })
       return
     }
     setSession(s)
@@ -125,7 +128,7 @@ export default function QuizPage() {
     setFeedback(Boolean(ans))
   }
 
-  const goNext = async () => {
+  const goNext = () => {
     if (!session) return
     if (viewIndex < total - 1) {
       const nextIdx = viewIndex + 1
@@ -141,81 +144,9 @@ export default function QuizPage() {
       }
       return
     }
-    await finishAndReport(session)
-  }
-
-  const finishAndReport = async (s: QuizSession) => {
-    if (reporting) return
-    setReporting(true)
-    const stats = summarize(s.answers)
-    const items = s.questions.map((q, i) => {
-      const a = s.answers[i]
-      return {
-        question_id: q.id,
-        type: q.type,
-        stem: q.stem,
-        options: q.options,
-        answer_indexes: q.answer_indexes,
-        selected_indexes: a?.selected_indexes || [],
-        is_correct: Boolean(a?.is_correct),
-        explanation: q.explanation,
-      }
-    })
-    try {
-      persist({ ...s, status: 'reporting' })
-      const report = await generateReport({
-        topic_name: s.topic_name,
-        source_text_excerpt: s.source_text.slice(0, 2000),
-        correct_count: stats.correct_count,
-        wrong_count: stats.wrong_count,
-        accuracy: stats.accuracy,
-        items,
-      })
-      let next: typeof s = { ...s, report, status: 'done', pending_complete: true }
-      persist(next)
-      try {
-        const completed = await completeSession({
-          topic_name: s.topic_name,
-          source_text: s.source_text,
-          questions: s.questions,
-          answers: s.answers,
-          report,
-          source_session_id: s.source_session_id ?? null,
-        })
-        next = {
-          ...next,
-          session_id: completed.session_id,
-          exp_gained: completed.exp_gained,
-          points_gained: completed.points_gained,
-          pending_complete: false,
-        }
-        persist(next)
-      } catch (completeErr) {
-        const cmsg =
-          completeErr instanceof ApiError
-            ? completeErr.message
-            : '记录保存失败，可稍后在报告页重试'
-        Taro.showToast({ title: cmsg, icon: 'none', duration: 2500 })
-      }
-      // 成功路径保持 loading，避免闪回最后一题
-      Taro.redirectTo({ url: '/pages/report/index' })
-    } catch (err) {
-      setReporting(false)
-      const msg = err instanceof ApiError ? err.message : '报告生成失败'
-      Taro.showModal({
-        title: '报告翻车了',
-        content: msg,
-        confirmText: '再试一次',
-        cancelText: '回首页',
-        success: (res) => {
-          if (res.confirm) finishAndReport(s)
-          else {
-            clearSession()
-            Taro.reLaunch({ url: '/pages/home/index' })
-          }
-        },
-      })
-    }
+    // Last question: enter report page; generation starts there (not before click).
+    persist({ ...session, status: 'reporting' })
+    Taro.redirectTo({ url: '/pages/report/index' })
   }
 
   if (!session || !question) {
@@ -228,112 +159,103 @@ export default function QuizPage() {
 
   return (
     <View className='page-shell quiz-mode'>
-      {reporting ? (
-        <View className='report-loading'>
-          <Mascot mood='think' size='lg' />
-          <View className='spinner' />
-          <Text className='panel-title'>题答完了，正在写复盘…</Text>
-          <Text className='hint'>正确率、错题回顾、薄弱点，马上端上来。</Text>
+      <ScrollView scrollY className='quiz-screen'>
+        <View className='quiz-meta-row'>
+          <Text className='hint'>
+            {TYPE_LABEL[question.type]} · {feedback ? '已判题' : '材料闯关'}
+          </Text>
+          <CoinPill value={displayPoints} />
         </View>
-      ) : (
-        <>
-          <ScrollView scrollY className='quiz-screen'>
-            <View className='quiz-meta-row'>
-              <Text className='hint'>
-                {TYPE_LABEL[question.type]} · {feedback ? '已判题' : '材料闯关'}
-              </Text>
-              <CoinPill value={displayPoints} />
-            </View>
 
-            <Text className='quiz-progress'>
-              第 {viewIndex + 1} 题 / 共 {total} 题
-            </Text>
-            <View className='quiz-progress-track'>
-              <View className='quiz-progress-fill' style={{ width: `${progressPct}%` }} />
-            </View>
+        <Text className='quiz-progress'>
+          第 {viewIndex + 1} 题 / 共 {total} 题
+        </Text>
+        <View className='quiz-progress-track'>
+          <View className='quiz-progress-fill' style={{ width: `${progressPct}%` }} />
+        </View>
 
-            <Text className='quiz-stem'>{question.stem}</Text>
+        <Text className='quiz-stem'>{question.stem}</Text>
 
-            <View className='quiz-options'>
-              {question.options.map((opt, idx) => {
-                const classes = ['quiz-opt']
-                if (!feedback && selected.includes(idx)) classes.push('selected')
-                if (feedback) {
-                  const isAns = question.answer_indexes.includes(idx)
-                  const isSel = selected.includes(idx)
-                  if (isAns) classes.push('correct', 'judged')
-                  else if (isSel) classes.push('wrong', 'judged')
-                }
-                return (
-                  <View
-                    key={`${question.id}-${idx}`}
-                    className={classes.join(' ')}
-                    onClick={() => toggleOption(idx)}
-                  >
-                    {feedback &&
-                    (question.answer_indexes.includes(idx) || selected.includes(idx)) ? (
-                      <Text className='dot'>
-                        {question.answer_indexes.includes(idx) ? '✓' : '✗'}
-                      </Text>
-                    ) : null}
-                    <Text>{opt}</Text>
+        <View className='quiz-options'>
+          {question.options.map((opt, idx) => {
+            const classes = ['quiz-opt']
+            if (!feedback && selected.includes(idx)) classes.push('selected')
+            if (feedback) {
+              const isAns = question.answer_indexes.includes(idx)
+              const isSel = selected.includes(idx)
+              if (isAns) classes.push('correct', 'judged')
+              else if (isSel) classes.push('wrong', 'judged')
+            }
+            return (
+              <View
+                key={`${question.id}-${idx}`}
+                className={classes.join(' ')}
+                onClick={() => toggleOption(idx)}
+              >
+                {feedback &&
+                (question.answer_indexes.includes(idx) || selected.includes(idx)) ? (
+                  <View className='dot'>
+                    <Text className='dot-mark'>
+                      {question.answer_indexes.includes(idx) ? '✓' : '✗'}
+                    </Text>
                   </View>
-                )
-              })}
+                ) : null}
+                <Text className='quiz-opt-label'>{opt}</Text>
+              </View>
+            )
+          })}
+        </View>
+
+        {feedback ? (
+          <>
+            <View className={`result-banner ${isCorrectNow ? 'ok' : 'bad'}`}>
+              <Mascot mood={isCorrectNow ? 'happy' : 'sweat'} size='tiny' />
+              <View className='grow'>
+                <Text>{isCorrectNow ? '漂亮，拿下！ · 答对了' : '差一点点！ · 答错了'}</Text>
+                <View className='gain-line'>
+                  <Text className='xp-gain'>
+                    {isCorrectNow ? '+20 EXP' : '+5 EXP（参与奖）'}
+                  </Text>
+                  <Text className='coin-gain'>
+                    {isCorrectNow ? '+5 积分' : '积分无加成'}
+                  </Text>
+                </View>
+              </View>
             </View>
-
-            {feedback ? (
-              <>
-                <View className={`result-banner ${isCorrectNow ? 'ok' : 'bad'}`}>
-                  <Mascot mood={isCorrectNow ? 'happy' : 'sweat'} size='tiny' />
-                  <View className='grow'>
-                    <Text>{isCorrectNow ? '漂亮，拿下！ · 答对了' : '差一点点！ · 答错了'}</Text>
-                    <View className='gain-line'>
-                      <Text className='xp-gain'>
-                        {isCorrectNow ? '+20 EXP' : '+5 EXP（参与奖）'}
-                      </Text>
-                      <Text className='coin-gain'>
-                        {isCorrectNow ? '+5 积分' : '积分无加成'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View className={`feedback-sheet ${isCorrectNow ? 'ok' : 'bad'}`}>
-                  <Text className='sheet-title'>知识讲解</Text>
-                  <Text className='sheet-body'>{question.explanation}</Text>
-                </View>
-              </>
-            ) : null}
-
-            <View className='quiz-scroll-spacer' />
-          </ScrollView>
-
-          {showFooter ? (
-            <View className='quiz-footer'>
-              {feedback ? (
-                <View className='btn-row'>
-                  <View
-                    className={`btn secondary ${viewIndex === 0 ? 'disabled' : ''}`}
-                    onClick={goPrev}
-                  >
-                    上一题
-                  </View>
-                  <View className='btn' onClick={goNext}>
-                    {viewIndex >= total - 1 ? '查看报告 →' : '下一题 →'}
-                  </View>
-                </View>
-              ) : (
-                <View
-                  className={`btn ${canSubmit ? '' : 'disabled'}`}
-                  onClick={() => submitAnswer()}
-                >
-                  提交答案
-                </View>
-              )}
+            <View className={`feedback-sheet ${isCorrectNow ? 'ok' : 'bad'}`}>
+              <Text className='sheet-title'>知识讲解</Text>
+              <Text className='sheet-body'>{question.explanation}</Text>
             </View>
-          ) : null}
-        </>
-      )}
+          </>
+        ) : null}
+
+        <View className='quiz-scroll-spacer' />
+      </ScrollView>
+
+      {showFooter ? (
+        <View className='quiz-footer'>
+          {feedback ? (
+            <View className='btn-row'>
+              <View
+                className={`btn secondary ${viewIndex === 0 ? 'disabled' : ''}`}
+                onClick={goPrev}
+              >
+                上一题
+              </View>
+              <View className='btn' onClick={goNext}>
+                {viewIndex >= total - 1 ? '查看报告 →' : '下一题 →'}
+              </View>
+            </View>
+          ) : (
+            <View
+              className={`btn ${canSubmit ? '' : 'disabled'}`}
+              onClick={() => submitAnswer()}
+            >
+              提交答案
+            </View>
+          )}
+        </View>
+      ) : null}
     </View>
   )
 }

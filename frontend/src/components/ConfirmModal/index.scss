@@ -1,0 +1,60 @@
+.cfm-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 40rpx;
+  box-sizing: border-box;
+  background: rgba(26, 26, 26, 0.45);
+}
+
+.cfm-card {
+  width: 100%;
+  max-width: 620rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16rpx;
+  padding: 40rpx 32rpx 32rpx;
+  background: var(--screen);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.cfm-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.35;
+  margin-top: 8rpx;
+}
+
+.cfm-message {
+  display: block;
+  font-size: 28rpx;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin: 4rpx 0 12rpx;
+}
+
+.cfm-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  width: 100%;
+  margin-top: 8rpx;
+}
+
+.cfm-btn {
+  flex: 1 1 0;
+  width: 0 !important;
+  min-width: 0;
+  font-size: 28rpx;
+  padding: 18rpx 12rpx;
+}

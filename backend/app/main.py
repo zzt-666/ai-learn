@@ -6,7 +6,10 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.exceptions import AppError, app_error_handler
+from app.logging_config import configure_logging
 from app.routers import auth, health, history, me, quiz, report, sessions
+
+configure_logging()
 
 app = FastAPI(title="衰衰闯关 API", version="0.2.0")
 

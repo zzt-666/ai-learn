@@ -20,6 +20,14 @@ class Settings:
         self.report_timeout_seconds: int = int(os.getenv("REPORT_TIMEOUT_SECONDS", "90"))
         self.source_excerpt_max_chars: int = int(os.getenv("SOURCE_EXCERPT_MAX_CHARS", "2000"))
 
+        self.tavily_api_key: str = os.getenv("TAVILY_API_KEY", "").strip()
+        self.quiz_agent_timeout_seconds: int = int(
+            os.getenv("QUIZ_AGENT_TIMEOUT_SECONDS", "120")
+        )
+        self.quiz_web_grounding: bool = _as_bool(
+            os.getenv("QUIZ_WEB_GROUNDING"), default=True
+        )
+
         self.wechat_app_id: str = os.getenv("WECHAT_APP_ID", "").strip()
         self.wechat_app_secret: str = os.getenv("WECHAT_APP_SECRET", "").strip()
         self.wechat_mock_login: bool = _as_bool(os.getenv("WECHAT_MOCK_LOGIN"), default=True)

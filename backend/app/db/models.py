@@ -50,3 +50,23 @@ class QuizSession(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="sessions")
+
+
+class QuizGenerationTask(Base):
+    """Async quiz generation job (create → poll → succeed/fail)."""
+
+    __tablename__ = "quiz_generation_tasks"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"), nullable=False, index=True)
+    source_text: Mapped[str] = mapped_column(Text, nullable=False)
+    topic_name_input: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    question_count: Mapped[int] = mapped_column(Integer, nullable=False, default=6)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="pending", index=True)
+    error_message: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    result_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

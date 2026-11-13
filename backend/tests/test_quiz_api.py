@@ -96,3 +96,36 @@ def test_generate_quiz_failed(client, auth_headers):
     body = response.json()
     assert body["error_code"] == "GENERATE_FAILED"
     assert "message" in body
+
+
+def test_generate_quiz_grounded_success_same_contract(client, auth_headers):
+    """增强成功时响应形状与原先一致，无来源字段。"""
+    with patch("app.routers.quiz.generate_quiz", return_value=_mock_payload()):
+        response = client.post(
+            "/api/v1/quiz/generate",
+            headers=auth_headers,
+            json={"source_text": "Harness Engineering", "question_count": 6},
+        )
+    assert response.status_code == 200
+    data = response.json()
+    assert set(data.keys()) == {"topic_name", "questions"}
+    assert "sources" not in data
+    assert "research_context" not in data
+
+
+def test_generate_quiz_silent_degrade_same_error_shape(client, auth_headers):
+    """检索失败静默降级后若模型出题仍失败，错误码仍为 GENERATE_FAILED。"""
+    with patch(
+        "app.routers.quiz.generate_quiz",
+        side_effect=RuntimeError("出题失败：校验未通过"),
+    ):
+        response = client.post(
+            "/api/v1/quiz/generate",
+            headers=auth_headers,
+            json={"source_text": "https://example.com/doc"},
+        )
+    assert response.status_code == 502
+    body = response.json()
+    assert body["error_code"] == "GENERATE_FAILED"
+    assert "检索失败" not in body["message"]
+    assert "已降级" not in body["message"]

@@ -115,6 +115,29 @@ export async function uploadAvatar(filePath: string): Promise<UserPublic> {
   }
 }
 
+export type QuizTaskStatus =
+  | 'pending'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+
+export interface QuizTaskCreated {
+  task_id: number
+  status: QuizTaskStatus
+}
+
+export interface QuizTaskPollResult {
+  task_id: number
+  status: QuizTaskStatus
+  topic_name?: string | null
+  questions?: QuizPayload['questions'] | null
+  error_message?: string | null
+  created_at?: string | null
+  finished_at?: string | null
+}
+
+/** Sync generate (legacy). Prefer createQuizTask + getQuizTask. */
 export function generateQuiz(payload: {
   source_text: string
   topic_name?: string
@@ -123,6 +146,27 @@ export function generateQuiz(payload: {
   return rawRequest<QuizPayload>('/api/v1/quiz/generate', {
     method: 'POST',
     data: payload,
+  })
+}
+
+export function createQuizTask(payload: {
+  source_text: string
+  topic_name?: string
+  question_count?: number
+}) {
+  return rawRequest<QuizTaskCreated>('/api/v1/quiz/tasks', {
+    method: 'POST',
+    data: payload,
+  })
+}
+
+export function getQuizTask(taskId: number) {
+  return rawRequest<QuizTaskPollResult>(`/api/v1/quiz/tasks/${taskId}`)
+}
+
+export function cancelQuizTask(taskId: number) {
+  return rawRequest<QuizTaskPollResult>(`/api/v1/quiz/tasks/${taskId}/cancel`, {
+    method: 'POST',
   })
 }
 
