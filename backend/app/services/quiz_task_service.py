@@ -31,11 +31,15 @@ def create_generation_task(
     source_text: str,
     topic_name: str | None,
     question_count: int,
+    knowledge_base_id: int | None = None,
+    drill_round: str | None = None,
 ) -> QuizGenerationTask:
     row = QuizGenerationTask(
         user_id=user_id,
         source_text=source_text,
         topic_name_input=topic_name,
+        knowledge_base_id=knowledge_base_id,
+        drill_round=drill_round,
         question_count=question_count,
         status=QuizTaskStatus.pending.value,
     )
@@ -144,6 +148,9 @@ def run_quiz_generation_task(task_id: int) -> None:
         source_text = row.source_text
         topic_name_input = row.topic_name_input
         question_count = row.question_count
+        knowledge_base_id = row.knowledge_base_id
+        drill_round = row.drill_round
+        user_id = row.user_id
 
         try:
             payload = generate_quiz(
@@ -151,6 +158,10 @@ def run_quiz_generation_task(task_id: int) -> None:
                 topic_name=topic_name_input,
                 question_count=question_count,
                 should_cancel=lambda: _task_is_cancelled(task_id),
+                db=db,
+                user_id=user_id,
+                knowledge_base_id=knowledge_base_id,
+                drill_round=drill_round,
             )
         except QuizTaskCancelled:
             logger.info("quiz_task=aborted_cooperative id=%s", task_id)

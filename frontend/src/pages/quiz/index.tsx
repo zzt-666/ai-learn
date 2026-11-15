@@ -1,14 +1,34 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
 import type { Question, QuizSession, UserAnswer } from '../../types/quiz'
+import { ApiError, fetchQuestionExplanation } from '../../utils/api'
 import { isCorrect } from '../../utils/grading'
 import { getCachedUser } from '../../utils/auth'
+import {
+  EXP_PER_CORRECT,
+  EXP_PER_WRONG,
+  POINTS_PER_CORRECT,
+  calcSessionRewards,
+} from '../../utils/rewards'
 import { loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
+
+function parseKbQuestionId(id: string): number | null {
+  const m = /^kbq-(\d+)$/.exec(id || '')
+  return m ? Number(m[1]) : null
+}
+
+function needsAiExplanation(q: Question | null): boolean {
+  if (!q) return false
+  const text = (q.explanation || '').trim()
+  if (!text || text === '暂无解析') return true
+  if (q.explanation_source === 'none') return true
+  return false
+}
 
 type TypeLabel = Record<string, string>
 
@@ -23,14 +43,13 @@ function truncateTitle(title: string, max = 14): string {
   return `${title.slice(0, max)}…`
 }
 
-const CORRECT_POINTS = 5
-
 export default function QuizPage() {
   const [session, setSession] = useState<QuizSession | null>(null)
   const [selected, setSelected] = useState<number[]>([])
   const [feedback, setFeedback] = useState(false)
   const [viewIndex, setViewIndex] = useState(0)
-  const [displayPoints, setDisplayPoints] = useState(0)
+  const [basePoints, setBasePoints] = useState(0)
+  const [explainLoading, setExplainLoading] = useState(false)
 
   useDidShow(() => {
     const s = loadSession()
@@ -47,9 +66,7 @@ export default function QuizPage() {
     setSession(s)
     setViewIndex(s.current_index)
     Taro.setNavigationBarTitle({ title: truncateTitle(s.topic_name) })
-    const base = getCachedUser()?.points ?? 0
-    const earned = (s.answers || []).filter((a) => a?.is_correct).length * CORRECT_POINTS
-    setDisplayPoints(base + earned)
+    setBasePoints(getCachedUser()?.points ?? 0)
     const answered = s.answers[s.current_index]
     if (answered) {
       setSelected(answered.selected_indexes)
@@ -65,8 +82,56 @@ export default function QuizPage() {
     return session.questions[viewIndex] || null
   }, [session, viewIndex])
 
+  useEffect(() => {
+    if (!feedback || !session || !question) return
+    if (!needsAiExplanation(question)) return
+    const kbId = session.knowledge_base_id
+    const qid = parseKbQuestionId(question.id)
+    if (!kbId || qid == null) return
+
+    let cancelled = false
+    setExplainLoading(true)
+    void fetchQuestionExplanation(kbId, qid)
+      .then((res) => {
+        if (cancelled) return
+        const text = (res.explanation || '').trim()
+        if (!text) return
+        const questions = session.questions.map((q, i) =>
+          i === viewIndex
+            ? {
+                ...q,
+                explanation: text,
+                explanation_source: res.explanation_source,
+              }
+            : q,
+        )
+        persist({ ...session, questions })
+      })
+      .catch((err) => {
+        if (!cancelled && err instanceof ApiError) {
+          // Keep 暂无解析; do not block the round.
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setExplainLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedback, viewIndex, question?.id, session?.knowledge_base_id])
+
   const total = session?.questions.length || 0
   const answeredCount = session?.answers.length || 0
+  const correctSoFar = useMemo(
+    () => (session?.answers || []).filter((a) => a?.is_correct).length,
+    [session?.answers],
+  )
+  const sessionPreview = useMemo(
+    () => calcSessionRewards(correctSoFar, total),
+    [correctSoFar, total],
+  )
+  const displayPoints = basePoints + sessionPreview.pointsGained
   const isReviewingPast = viewIndex < answeredCount
   const canSubmit =
     !!question &&
@@ -113,9 +178,6 @@ export default function QuizPage() {
       current_index: viewIndex,
     }
     persist(next)
-    if (correct) {
-      setDisplayPoints((p) => p + CORRECT_POINTS)
-    }
     setFeedback(true)
   }
 
@@ -214,17 +276,40 @@ export default function QuizPage() {
                 <Text>{isCorrectNow ? '漂亮，拿下！ · 答对了' : '差一点点！ · 答错了'}</Text>
                 <View className='gain-line'>
                   <Text className='xp-gain'>
-                    {isCorrectNow ? '+20 EXP' : '+5 EXP（参与奖）'}
+                    {isCorrectNow
+                      ? `+${EXP_PER_CORRECT} EXP`
+                      : `+${EXP_PER_WRONG} EXP（参与奖）`}
                   </Text>
                   <Text className='coin-gain'>
-                    {isCorrectNow ? '+5 积分' : '积分无加成'}
+                    {isCorrectNow
+                      ? `+${POINTS_PER_CORRECT} 积分`
+                      : '积分无加成'}
                   </Text>
                 </View>
+                <Text className='gain-hint'>
+                  本局累计 +{sessionPreview.expGained} EXP · +
+                  {sessionPreview.pointsGained} 积分
+                </Text>
               </View>
             </View>
             <View className={`feedback-sheet ${isCorrectNow ? 'ok' : 'bad'}`}>
-              <Text className='sheet-title'>知识讲解</Text>
-              <Text className='sheet-body'>{question.explanation}</Text>
+              <View className='sheet-title-row'>
+                <Text className='sheet-title'>知识讲解</Text>
+                {question.explanation_source === 'ai' ||
+                question.explanation?.startsWith('【AI 解析】') ? (
+                  <Text className='source-badge ai'>AI</Text>
+                ) : question.explanation &&
+                  question.explanation !== '暂无解析' &&
+                  !explainLoading ? (
+                  <Text className='source-badge src'>原文</Text>
+                ) : null}
+              </View>
+              <Text className='sheet-body'>
+                {explainLoading && needsAiExplanation(question)
+                  ? '正在生成解析…'
+                  : question.explanation?.replace(/^【AI 解析】/, '') ||
+                    '暂无解析'}
+              </Text>
             </View>
           </>
         ) : null}

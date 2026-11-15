@@ -11,7 +11,7 @@ import {
   type QuizTaskPollResult,
 } from '../../utils/api'
 import { ensureLogin } from '../../utils/auth'
-import { takePendingSourceText, setPendingSourceText } from '../../utils/pending'
+import { takePendingQuizStart, setPendingQuizStart } from '../../utils/pending'
 import { saveSession } from '../../utils/storage'
 import type { QuizSession } from '../../types/quiz'
 import '../../styles/ui.scss'
@@ -35,6 +35,8 @@ export default function GeneratePage() {
   const [sourceText, setSourceText] = useState('')
   const [hint, setHint] = useState('正在创建出题任务…')
   const [leaveOpen, setLeaveOpen] = useState(false)
+  const kbIdRef = useRef<number | undefined>(undefined)
+  const topicNameRef = useRef<string | undefined>(undefined)
   /** Invisible PageContainer traps system / gesture / nav back. */
   const [backGuard, setBackGuard] = useState(true)
   /** User left / abandoned — never auto-enter quiz. */
@@ -95,6 +97,7 @@ export default function GeneratePage() {
       current_index: 0,
       report: null,
       status: 'answering',
+      knowledge_base_id: kbIdRef.current ?? null,
     }
     leavingForQuizRef.current = true
     setBackGuard(false)
@@ -138,11 +141,21 @@ export default function GeneratePage() {
     throw new ApiError('REQUEST_FAILED', '已取消出题')
   }
 
-  const runGenerate = async (text: string) => {
+  const runGenerate = async (opts: {
+    text: string
+    knowledge_base_id?: number
+    topic_name?: string
+    question_count?: number
+    drill_round?: 'review'
+  }) => {
+    const { text, knowledge_base_id, topic_name, question_count, drill_round } =
+      opts
     abandonedRef.current = false
     leavingForQuizRef.current = false
     confirmLeaveRef.current = false
     taskIdRef.current = null
+    kbIdRef.current = knowledge_base_id
+    topicNameRef.current = topic_name
     setPhase('loading')
     setSourceText(text)
     setHint('正在创建出题任务…')
@@ -154,14 +167,23 @@ export default function GeneratePage() {
       if (abandonedRef.current) return
       const created = await createQuizTask({
         source_text: text,
-        question_count: 6,
+        topic_name,
+        question_count: question_count || 6,
+        knowledge_base_id,
+        drill_round: drill_round || null,
       })
       if (abandonedRef.current) {
         await cancelQuizTask(created.task_id).catch(() => undefined)
         return
       }
       taskIdRef.current = created.task_id
-      setHint('任务已创建，正在检索并出题…')
+      setHint(
+        knowledge_base_id
+          ? drill_round === 'review'
+            ? '正在抽取复习题…'
+            : '正在按知识库材料出题…'
+          : '任务已创建，正在智能取知出题…',
+      )
       const done = await pollUntilDone(created.task_id)
       if (abandonedRef.current) return
       enterQuiz(text, done)
@@ -189,7 +211,8 @@ export default function GeneratePage() {
   useEffect(() => {
     abandonedRef.current = false
     leavingForQuizRef.current = false
-    const text = takePendingSourceText().trim()
+    const pending = takePendingQuizStart()
+    const text = pending.source_text.trim()
     if (!text) {
       setMessage('没有收到学习材料，请回首页重新粘贴。')
       setPhase('fail')
@@ -197,7 +220,13 @@ export default function GeneratePage() {
       Taro.setNavigationBarTitle({ title: '出题翻车' })
       return
     }
-    runGenerate(text)
+    runGenerate({
+      text,
+      knowledge_base_id: pending.knowledge_base_id,
+      topic_name: pending.topic_name,
+      question_count: pending.question_count,
+      drill_round: pending.drill_round,
+    })
     return () => {
       if (!leavingForQuizRef.current) {
         abandonedRef.current = true
@@ -255,8 +284,16 @@ export default function GeneratePage() {
               Taro.reLaunch({ url: '/pages/home/index' })
               return
             }
-            setPendingSourceText(sourceText)
-            runGenerate(sourceText)
+            setPendingQuizStart({
+              source_text: sourceText,
+              knowledge_base_id: kbIdRef.current,
+              topic_name: topicNameRef.current,
+            })
+            runGenerate({
+              text: sourceText,
+              knowledge_base_id: kbIdRef.current,
+              topic_name: topicNameRef.current,
+            })
           }}
         >
           再试一次
@@ -283,7 +320,7 @@ export default function GeneratePage() {
       <View className='loading-wrap'>
         <Mascot mood='think' size='lg' />
         <View className='spinner' />
-        <Text className='panel-title'>正在检索并出题…</Text>
+        <Text className='panel-title'>正在智能取知出题…</Text>
         <Text className='hint loading-hint'>{hint}</Text>
         <View className='comic-bubble'>
           预计一会儿就好。你要是紧张，就先搓搓手。

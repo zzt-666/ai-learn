@@ -16,6 +16,8 @@ from app.models.quiz_task import (
     QuizTaskStatus,
     QuizTaskStatusResponse,
 )
+from app.services.knowledge_service import assert_kb_ready_for_quiz
+from app.services.quiz_research import KnowledgeBaseGroundingError
 from app.services.quiz_service import generate_quiz
 from app.services.quiz_task_service import (
     cancel_generation_task,
@@ -31,6 +33,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1")
 
 
+def _prepare_kb_if_needed(
+    db: Session, *, user_id: int, knowledge_base_id: int | None
+) -> None:
+    if knowledge_base_id is not None:
+        assert_kb_ready_for_quiz(db, kb_id=knowledge_base_id, user_id=user_id)
+
+
 @router.post(
     "/quiz/tasks",
     response_model=QuizTaskCreatedResponse,
@@ -44,10 +53,14 @@ def create_quiz_task(
 ):
     """Enqueue async quiz generation; returns immediately for client polling."""
     logger.info(
-        "api quiz/tasks create user_id=%s n=%s clue=%s",
+        "api quiz/tasks create user_id=%s n=%s kb_id=%s clue=%s",
         current_user.id,
         body.question_count,
+        body.knowledge_base_id,
         preview_text(body.source_text, limit=80),
+    )
+    _prepare_kb_if_needed(
+        db, user_id=current_user.id, knowledge_base_id=body.knowledge_base_id
     )
     row = create_generation_task(
         db,
@@ -55,6 +68,8 @@ def create_quiz_task(
         source_text=body.source_text,
         topic_name=body.topic_name,
         question_count=body.question_count,
+        knowledge_base_id=body.knowledge_base_id,
+        drill_round=body.drill_round,
     )
     background_tasks.add_task(run_quiz_generation_task, row.id)
     return QuizTaskCreatedResponse(
@@ -108,20 +123,38 @@ def cancel_quiz_task(
 )
 def create_quiz(
     body: QuizGenerateRequest,
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """Sync generate (compat / tests). Prefer POST /quiz/tasks + poll in the mini program."""
     logger.info(
-        "api quiz/generate user_id=%s n=%s clue=%s",
-        _current_user.id,
+        "api quiz/generate user_id=%s n=%s kb_id=%s clue=%s",
+        current_user.id,
         body.question_count,
+        body.knowledge_base_id,
         preview_text(body.source_text, limit=80),
     )
     try:
+        _prepare_kb_if_needed(
+            db, user_id=current_user.id, knowledge_base_id=body.knowledge_base_id
+        )
         return generate_quiz(
             source_text=body.source_text,
             topic_name=body.topic_name,
             question_count=body.question_count,
+            db=db,
+            user_id=current_user.id,
+            knowledge_base_id=body.knowledge_base_id,
+            drill_round=body.drill_round,
+        )
+    except KnowledgeBaseGroundingError as exc:
+        logger.info("api quiz/generate kb_failed err=%s", exc)
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error_code": "KB_GROUNDING_FAILED",
+                "message": str(exc) or "知识库材料不足，无法出题",
+            },
         )
     except Exception as exc:  # noqa: BLE001
         logger.exception("api quiz/generate failed err=%s", type(exc).__name__)

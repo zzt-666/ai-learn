@@ -216,7 +216,7 @@ export default function ReportPage() {
                   </>
                 ) : (
                   <Text className='report-settle-hint'>
-                    已按正确率结算 EXP / 积分，可在「我的」查看成长。
+                    已按答题结算 EXP / 积分（与局内一致），可在「我的」查看成长。
                   </Text>
                 )}
               </View>

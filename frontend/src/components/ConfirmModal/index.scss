@@ -51,6 +51,15 @@
   margin-top: 8rpx;
 }
 
+.cfm-actions.stacked {
+  flex-direction: column;
+}
+
+.cfm-actions.stacked .cfm-btn {
+  width: 100% !important;
+  flex: none;
+}
+
 .cfm-btn {
   flex: 1 1 0;
   width: 0 !important;

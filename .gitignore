@@ -31,6 +31,12 @@ venv/
 backend/uploads/avatars/*
 !backend/uploads/avatars/.gitkeep
 
+# 知识库上传与向量库（保留目录占位）
+backend/uploads/knowledge/*
+!backend/uploads/knowledge/.gitkeep
+backend/chroma_data/
+chroma_data/
+
 # Node / Taro
 node_modules/
 frontend/dist/

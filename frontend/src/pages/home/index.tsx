@@ -9,7 +9,7 @@ import { ApiError, fetchHistory } from '../../utils/api'
 import { ensureLogin, getCachedUser, isLoggedIn } from '../../utils/auth'
 import { resolveAvatarUrl } from '../../utils/avatar'
 import { accuracyPercent } from '../../utils/format'
-import { setPendingSourceText } from '../../utils/pending'
+import { setPendingQuizStart } from '../../utils/pending'
 import { hasSeenGuide, markGuideSeen } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
@@ -72,7 +72,7 @@ export default function HomePage() {
       return
     }
     setEmptyWarn(false)
-    setPendingSourceText(text)
+    setPendingQuizStart({ source_text: text })
     Taro.navigateTo({ url: '/pages/generate/index' })
   }
 

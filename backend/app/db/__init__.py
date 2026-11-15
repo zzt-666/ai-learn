@@ -1,5 +1,11 @@
 from app.db.base import Base, SessionLocal, engine, get_db
-from app.db.models import QuizGenerationTask, QuizSession, User
+from app.db.models import (
+    KnowledgeBase,
+    KnowledgeDocument,
+    QuizGenerationTask,
+    QuizSession,
+    User,
+)
 
 __all__ = [
     "Base",
@@ -9,4 +15,6 @@ __all__ = [
     "User",
     "QuizSession",
     "QuizGenerationTask",
+    "KnowledgeBase",
+    "KnowledgeDocument",
 ]

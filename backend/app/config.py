@@ -43,6 +43,29 @@ class Settings:
 
         self.upload_dir: str = os.getenv("UPLOAD_DIR", "uploads").strip() or "uploads"
 
+        self.dashscope_api_key: str = os.getenv("DASHSCOPE_API_KEY", "").strip()
+        self.dashscope_embedding_model: str = (
+            os.getenv("DASHSCOPE_EMBEDDING_MODEL", "text-embedding-v4").strip()
+            or "text-embedding-v4"
+        )
+        self.dashscope_embedding_dimensions: int = int(
+            os.getenv("DASHSCOPE_EMBEDDING_DIMENSIONS", "1024")
+        )
+        self.dashscope_embedding_base_url: str = (
+            os.getenv(
+                "DASHSCOPE_EMBEDDING_BASE_URL",
+                "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            ).strip()
+            or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
+        self.chroma_persist_dir: str = (
+            os.getenv("CHROMA_PERSIST_DIR", "chroma_data").strip() or "chroma_data"
+        )
+        self.kb_max_file_bytes: int = int(os.getenv("KB_MAX_FILE_BYTES", str(10 * 1024 * 1024)))
+        # Product rule: one document per knowledge base (re-upload replaces).
+        self.kb_max_docs_per_base: int = int(os.getenv("KB_MAX_DOCS_PER_BASE", "1"))
+        self.kb_max_bases_per_user: int = int(os.getenv("KB_MAX_BASES_PER_USER", "10"))
+
     @property
     def database_url(self) -> str:
         return (

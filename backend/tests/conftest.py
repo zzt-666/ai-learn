@@ -77,6 +77,8 @@ db_base.SessionLocal = TestingSessionLocal
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_database() -> Generator[None, None, None]:
+    # Drop+create so model changes (e.g. new columns) apply on the test DB.
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
 

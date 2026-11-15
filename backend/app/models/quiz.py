@@ -35,7 +35,9 @@ class Question(BaseModel):
 class QuizGenerateRequest(BaseModel):
     source_text: str
     topic_name: str | None = None
-    question_count: int = Field(default=6, ge=5, le=10)
+    question_count: int = Field(default=6, ge=1, le=50)
+    knowledge_base_id: int | None = None
+    drill_round: str | None = None  # "review" for drill review round
 
     @field_validator("source_text")
     @classmethod

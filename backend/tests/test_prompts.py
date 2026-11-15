@@ -1,10 +1,14 @@
 from app.services.prompts import (
     QUIZ_HUMAN,
     QUIZ_HUMAN_GROUNDED,
+    QUIZ_HUMAN_KB,
     QUIZ_SYSTEM,
     QUIZ_SYSTEM_GROUNDED,
+    QUIZ_SYSTEM_KB,
     REPORT_SYSTEM,
     RESEARCH_SYSTEM,
+    RESEARCH_SYSTEM_KB_ONLY,
+    RESEARCH_SYSTEM_WITH_KB,
 )
 
 
@@ -34,3 +38,11 @@ def test_research_prompt_guides_tool_choice():
 def test_report_prompt_not_locked_to_material_only():
     assert "不编造材料没有的知识" not in REPORT_SYSTEM
     assert "主题" in REPORT_SYSTEM
+
+
+def test_kb_quiz_prompt_is_material_first():
+    assert "材料优先" in QUIZ_SYSTEM_KB
+    assert "少编造" in QUIZ_SYSTEM_KB or "库外" in QUIZ_SYSTEM_KB
+    assert "{research_context}" in QUIZ_HUMAN_KB
+    assert "kb_retrieve" in RESEARCH_SYSTEM_WITH_KB
+    assert "强制知识库" in RESEARCH_SYSTEM_KB_ONLY or "只能使用知识库" in RESEARCH_SYSTEM_KB_ONLY

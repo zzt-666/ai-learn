@@ -10,7 +10,8 @@ def test_gather_research_missing_key_returns_none(monkeypatch):
 
     get_settings.cache_clear()
     try:
-        assert gather_research_context("Harness Engineering") is None
+        result = gather_research_context("Harness Engineering")
+        assert result.context is None
     finally:
         get_settings.cache_clear()
 
@@ -22,7 +23,8 @@ def test_gather_research_disabled_returns_none(monkeypatch):
 
     get_settings.cache_clear()
     try:
-        assert gather_research_context("主题") is None
+        result = gather_research_context("主题")
+        assert result.context is None
     finally:
         get_settings.cache_clear()
 
@@ -45,7 +47,8 @@ def test_gather_research_agent_error_returns_none(monkeypatch):
                 side_effect=RuntimeError("agent boom"),
             ),
         ):
-            assert gather_research_context("主题") is None
+            result = gather_research_context("主题")
+            assert result.context is None
     finally:
         get_settings.cache_clear()
 
@@ -71,9 +74,9 @@ def test_gather_research_success_returns_text(monkeypatch):
             patch("app.services.quiz_research.get_quiz_llm", return_value=MagicMock()),
             patch("app.services.quiz_research.create_agent", return_value=agent),
         ):
-            text = gather_research_context("Harness Engineering")
-        assert text is not None
-        assert "Harness" in text
+            result = gather_research_context("Harness Engineering")
+        assert result.context is not None
+        assert "Harness" in result.context
         agent.invoke.assert_called_once()
     finally:
         get_settings.cache_clear()

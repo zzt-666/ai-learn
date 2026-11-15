@@ -7,11 +7,11 @@ from fastapi.staticfiles import StaticFiles
 from app.config import get_settings
 from app.exceptions import AppError, app_error_handler
 from app.logging_config import configure_logging
-from app.routers import auth, health, history, me, quiz, report, sessions
+from app.routers import auth, health, history, knowledge, me, quiz, report, sessions
 
 configure_logging()
 
-app = FastAPI(title="衰衰闯关 API", version="0.2.0")
+app = FastAPI(title="衰衰闯关 API", version="0.3.0")
 
 app.add_exception_handler(AppError, app_error_handler)
 
@@ -27,11 +27,14 @@ settings = get_settings()
 upload_root = Path(settings.upload_dir)
 upload_root.mkdir(parents=True, exist_ok=True)
 (upload_root / "avatars").mkdir(parents=True, exist_ok=True)
+(upload_root / "knowledge").mkdir(parents=True, exist_ok=True)
+Path(settings.chroma_persist_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(upload_root)), name="uploads")
 
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(me.router)
+app.include_router(knowledge.router)
 app.include_router(quiz.router)
 app.include_router(report.router)
 app.include_router(sessions.router)

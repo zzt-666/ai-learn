@@ -74,11 +74,11 @@ def test_complete_session_awards_and_lists(client, auth_headers):
     )
     assert resp.status_code == 200, resp.text
     data = resp.json()
-    # 对 2/3：EXP=40+20=60；积分=round(2/3*40)=27
-    assert data["exp_gained"] == 60
-    assert data["points_gained"] == 27
-    assert data["user"]["exp"] == 60
-    assert data["user"]["points"] == 27
+    # 对 2/3：EXP=2*20+1*5=45；积分=2*5=10
+    assert data["exp_gained"] == 45
+    assert data["points_gained"] == 10
+    assert data["user"]["exp"] == 45
+    assert data["user"]["points"] == 10
     assert data["user"]["completed_count"] == 1
     assert data["user"]["level"] == 1
     session_id = data["session_id"]
@@ -89,7 +89,7 @@ def test_complete_session_awards_and_lists(client, auth_headers):
     assert len(items) == 1
     assert items[0]["id"] == session_id
     assert items[0]["status"] == "completed"
-    assert items[0]["exp_gained"] == 60
+    assert items[0]["exp_gained"] == 45
     assert items[0]["question_count"] == 3
 
     detail = client.get(f"/api/v1/history/{session_id}", headers=auth_headers)

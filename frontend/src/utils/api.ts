@@ -153,11 +153,207 @@ export function createQuizTask(payload: {
   source_text: string
   topic_name?: string
   question_count?: number
+  knowledge_base_id?: number
+  drill_round?: 'review' | null
 }) {
   return rawRequest<QuizTaskCreated>('/api/v1/quiz/tasks', {
     method: 'POST',
     data: payload,
   })
+}
+
+export type KnowledgeBaseMode = 'drill' | 'master'
+
+export interface KnowledgeBaseItem {
+  id: number
+  name: string
+  description?: string | null
+  mode?: KnowledgeBaseMode | null
+  suggested_mode?: KnowledgeBaseMode | null
+  mode_confirmed_at?: string | null
+  ready_document_count: number
+  document_count: number
+  active_question_count?: number
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface KnowledgeDocumentItem {
+  id: number
+  knowledge_base_id: number
+  filename: string
+  content_type: string
+  size_bytes: number
+  status: 'pending' | 'processing' | 'awaiting_mode' | 'ready' | 'failed'
+  error_message?: string | null
+  chunk_count: number
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface DrillStatusItem {
+  knowledge_base_id: number
+  mode?: KnowledgeBaseMode | null
+  suggested_mode?: KnowledgeBaseMode | null
+  mode_confirmed: boolean
+  total_questions: number
+  unseen_questions: number
+  needs_review_prompt: boolean
+  needs_empty_drill_prompt?: boolean
+  auto_switched_to_master?: boolean
+  warning?: string | null
+}
+
+export type MasterMapStatus = 'pending' | 'ready' | 'failed'
+
+export interface MasterStatusItem {
+  knowledge_base_id: number
+  map_status?: MasterMapStatus | null
+  total_points: number
+  covered_points: number
+  uncovered_points: number
+  needs_review_prompt: boolean
+  warning?: string | null
+  error_message?: string | null
+}
+
+export function fetchKnowledgeBases() {
+  return rawRequest<KnowledgeBaseItem[]>('/api/v1/knowledge-bases')
+}
+
+export function createKnowledgeBase(payload: { name: string; description?: string }) {
+  return rawRequest<KnowledgeBaseItem>('/api/v1/knowledge-bases', {
+    method: 'POST',
+    data: payload,
+  })
+}
+
+export function updateKnowledgeBase(
+  id: number,
+  payload: { name?: string; description?: string | null },
+) {
+  return rawRequest<KnowledgeBaseItem>(`/api/v1/knowledge-bases/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  })
+}
+
+export function deleteKnowledgeBase(id: number) {
+  return rawRequest<{ ok: boolean }>(`/api/v1/knowledge-bases/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export function confirmKnowledgeBaseMode(
+  id: number,
+  mode: KnowledgeBaseMode,
+  force = true,
+) {
+  return rawRequest<KnowledgeBaseItem>(
+    `/api/v1/knowledge-bases/${id}/confirm-mode`,
+    {
+      method: 'POST',
+      data: { mode, force },
+    },
+  )
+}
+
+export function fetchQuestionExplanation(kbId: number, questionId: number) {
+  return rawRequest<{
+    question_id: number
+    explanation: string
+    explanation_source: 'source' | 'ai' | 'none'
+  }>(`/api/v1/knowledge-bases/${kbId}/questions/${questionId}/explanation`, {
+    method: 'POST',
+  })
+}
+
+export function fetchDrillStatus(kbId: number) {
+  return rawRequest<DrillStatusItem>(
+    `/api/v1/knowledge-bases/${kbId}/drill-status`,
+  )
+}
+
+export function resetDrillPractice(kbId: number) {
+  return rawRequest<{ ok: boolean }>(
+    `/api/v1/knowledge-bases/${kbId}/reset-practice`,
+    { method: 'POST' },
+  )
+}
+
+export function fetchMasterStatus(kbId: number) {
+  return rawRequest<MasterStatusItem>(
+    `/api/v1/knowledge-bases/${kbId}/master-status`,
+  )
+}
+
+export function rebuildMasterMap(kbId: number) {
+  return rawRequest<MasterStatusItem>(
+    `/api/v1/knowledge-bases/${kbId}/master-map/rebuild`,
+    { method: 'POST' },
+  )
+}
+
+export function resetMasterCoverage(kbId: number) {
+  return rawRequest<{ ok: boolean }>(
+    `/api/v1/knowledge-bases/${kbId}/reset-master-coverage`,
+    { method: 'POST' },
+  )
+}
+
+export function fetchKnowledgeDocuments(kbId: number) {
+  return rawRequest<KnowledgeDocumentItem[]>(
+    `/api/v1/knowledge-bases/${kbId}/documents`,
+  )
+}
+
+export function fetchKnowledgeDocument(kbId: number, docId: number) {
+  return rawRequest<KnowledgeDocumentItem>(
+    `/api/v1/knowledge-bases/${kbId}/documents/${docId}`,
+  )
+}
+
+export function deleteKnowledgeDocument(kbId: number, docId: number) {
+  return rawRequest<{ ok: boolean }>(
+    `/api/v1/knowledge-bases/${kbId}/documents/${docId}`,
+    { method: 'DELETE' },
+  )
+}
+
+export async function uploadKnowledgeDocument(
+  kbId: number,
+  filePath: string,
+  fileName?: string,
+): Promise<KnowledgeDocumentItem> {
+  const doUpload = async () => {
+    const token = getToken()
+    const res = await Taro.uploadFile({
+      url: `${API_BASE}/api/v1/knowledge-bases/${kbId}/documents`,
+      filePath,
+      name: 'file',
+      fileName,
+      header: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return body as KnowledgeDocumentItem
+    }
+    throw new ApiError(
+      body?.error_code || 'REQUEST_FAILED',
+      body?.message || `上传失败（${res.statusCode}）`,
+    )
+  }
+  try {
+    return await doUpload()
+  } catch (err) {
+    if (err instanceof ApiError && err.error_code === 'UNAUTHORIZED') {
+      clearAuth()
+      await ensureLogin(true)
+      return doUpload()
+    }
+    if (err instanceof ApiError) throw err
+    throw new ApiError('UPLOAD_FAILED', '文档上传失败，请重试')
+  }
 }
 
 export function getQuizTask(taskId: number) {

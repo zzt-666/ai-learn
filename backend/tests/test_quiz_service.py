@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.models.quiz import Question, QuestionType, QuizPayload
+from app.services.quiz_research import ResearchResult
 from app.services.quiz_service import generate_quiz
 
 
@@ -45,6 +46,14 @@ def _valid_payload(n: int = 6) -> QuizPayload:
     return QuizPayload(topic_name="自动主题", questions=questions)
 
 
+def _empty_research() -> ResearchResult:
+    return ResearchResult(context=None, used_knowledge_base=False, mode="none")
+
+
+def _web_research(text: str) -> ResearchResult:
+    return ResearchResult(context=text, used_knowledge_base=False, mode="web")
+
+
 def test_generate_quiz_retries_then_succeeds():
     all_single = QuizPayload(
         topic_name="坏",
@@ -65,7 +74,10 @@ def test_generate_quiz_retries_then_succeeds():
     chain.invoke.side_effect = [all_single, good]
 
     with (
-        patch("app.services.quiz_service.gather_research_context", return_value=None),
+        patch(
+            "app.services.quiz_service.gather_research_context",
+            return_value=_empty_research(),
+        ),
         patch("app.services.quiz_service._build_quiz_chain", return_value=chain) as build,
     ):
         result = generate_quiz("材料文本", None, 6)
@@ -73,7 +85,7 @@ def test_generate_quiz_retries_then_succeeds():
     assert result.topic_name == "自动主题"
     assert len(result.questions) == 6
     assert chain.invoke.call_count == 2
-    build.assert_called_with(grounded=False)
+    build.assert_called_with(mode="model")
 
 
 def test_generate_quiz_keeps_user_topic_name():
@@ -82,7 +94,10 @@ def test_generate_quiz_keeps_user_topic_name():
     chain.invoke.return_value = good
 
     with (
-        patch("app.services.quiz_service.gather_research_context", return_value=None),
+        patch(
+            "app.services.quiz_service.gather_research_context",
+            return_value=_empty_research(),
+        ),
         patch("app.services.quiz_service._build_quiz_chain", return_value=chain),
     ):
         result = generate_quiz("材料", "我的主题", 6)
@@ -109,7 +124,10 @@ def test_generate_quiz_fails_after_retry():
     chain.invoke.return_value = all_single
 
     with (
-        patch("app.services.quiz_service.gather_research_context", return_value=None),
+        patch(
+            "app.services.quiz_service.gather_research_context",
+            return_value=_empty_research(),
+        ),
         patch("app.services.quiz_service._build_quiz_chain", return_value=chain),
     ):
         with pytest.raises(RuntimeError, match="出题失败"):
@@ -124,14 +142,14 @@ def test_generate_quiz_uses_grounded_chain_when_research_ok():
     with (
         patch(
             "app.services.quiz_service.gather_research_context",
-            return_value="Harness：测试与评测编排要点…",
+            return_value=_web_research("Harness：测试与评测编排要点…"),
         ),
         patch("app.services.quiz_service._build_quiz_chain", return_value=chain) as build,
     ):
         result = generate_quiz("Harness Engineering", None, 6)
 
     assert len(result.questions) == 6
-    build.assert_called_with(grounded=True)
+    build.assert_called_with(mode="web")
     args = chain.invoke.call_args.args[0]
     assert "research_context" in args
     assert "Harness" in args["research_context"]
@@ -143,12 +161,15 @@ def test_generate_quiz_silent_degrade_when_research_fails():
     chain.invoke.return_value = good
 
     with (
-        patch("app.services.quiz_service.gather_research_context", return_value=None),
+        patch(
+            "app.services.quiz_service.gather_research_context",
+            return_value=_empty_research(),
+        ),
         patch("app.services.quiz_service._build_quiz_chain", return_value=chain) as build,
     ):
         result = generate_quiz("Harness Engineering", None, 6)
 
     assert result.topic_name == "自动主题"
-    build.assert_called_with(grounded=False)
+    build.assert_called_with(mode="model")
     args = chain.invoke.call_args.args[0]
     assert "research_context" not in args

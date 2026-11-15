@@ -7,6 +7,7 @@ export interface Question {
   options: string[]
   answer_indexes: number[]
   explanation: string
+  explanation_source?: 'source' | 'ai' | 'none' | null
 }
 
 export interface QuizPayload {
@@ -55,6 +56,7 @@ export interface QuizSession {
   current_index: number
   report?: ReportPayload | null
   status: 'answering' | 'reporting' | 'done'
+  knowledge_base_id?: number | null
   source_session_id?: number | null
   session_id?: number | null
   exp_gained?: number | null

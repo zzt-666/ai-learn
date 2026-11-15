@@ -70,11 +70,29 @@
   padding: 4rpx 14rpx;
   border: 4rpx solid var(--ink);
   border-radius: 999rpx;
-  background: var(--grass);
-  color: #fff;
+  flex-shrink: 0;
 }
 
-.badge.doing {
+.badge.mode-drill {
   background: var(--yellow);
   color: var(--ink);
+}
+
+.badge.mode-master {
+  background: var(--sky);
+  color: var(--ink);
+}
+
+.badge.mode-unset {
+  background: #eee;
+  color: var(--ink-soft);
+}
+
+.import-row {
+  margin-top: auto;
+  padding-top: 16rpx;
+}
+
+.hint.warn {
+  color: #c0392b;
 }

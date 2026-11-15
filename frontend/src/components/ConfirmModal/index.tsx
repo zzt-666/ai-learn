@@ -11,9 +11,12 @@ interface ConfirmModalProps {
   message: string
   confirmText?: string
   cancelText?: string
+  /** Optional third action (e.g. reset progress). */
+  extraText?: string
   mood?: Mood
   onConfirm: () => void
   onCancel: () => void
+  onExtra?: () => void
 }
 
 export default function ConfirmModal({
@@ -22,9 +25,11 @@ export default function ConfirmModal({
   message,
   confirmText = '确定',
   cancelText = '再想想',
+  extraText,
   mood = 'sweat',
   onConfirm,
   onCancel,
+  onExtra,
 }: ConfirmModalProps) {
   if (!open) return null
 
@@ -39,10 +44,15 @@ export default function ConfirmModal({
         <Mascot mood={mood} size='md' />
         <Text className='cfm-title'>{title}</Text>
         <Text className='cfm-message'>{message}</Text>
-        <View className='cfm-actions'>
+        <View className={`cfm-actions ${extraText ? 'stacked' : ''}`}>
           <View className='btn secondary cfm-btn' onClick={onCancel}>
             {cancelText}
           </View>
+          {extraText ? (
+            <View className='btn secondary cfm-btn' onClick={onExtra}>
+              {extraText}
+            </View>
+          ) : null}
           <View className='btn cfm-btn' onClick={onConfirm}>
             {confirmText}
           </View>
