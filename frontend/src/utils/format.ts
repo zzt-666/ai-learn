@@ -1,4 +1,5 @@
-export function formatFinishedAt(iso: string): string {
+export function formatFinishedAt(iso: string | null | undefined): string {
+  if (!iso) return '进行中'
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   const now = new Date()

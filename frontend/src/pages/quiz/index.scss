@@ -189,35 +189,11 @@
   background: #ffe8e4;
 }
 
-.sheet-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
-}
-
 .sheet-title {
   display: block;
   font-size: 30rpx;
   font-weight: 700;
-}
-
-.source-badge {
-  flex-shrink: 0;
-  padding: 4rpx 14rpx;
-  border: 3rpx solid var(--ink);
-  border-radius: 8rpx;
-  font-size: 20rpx;
-  font-weight: 800;
-}
-
-.source-badge.ai {
-  background: #fff3e0;
-}
-
-.source-badge.src {
-  background: #e8f0ff;
+  margin-bottom: 12rpx;
 }
 
 .sheet-body {

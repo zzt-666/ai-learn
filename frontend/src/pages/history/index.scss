@@ -86,6 +86,10 @@
   font-weight: 700;
 }
 
+.badge-pending {
+  background: var(--orange-soft);
+}
+
 .grow {
   flex: 1;
   min-width: 0;

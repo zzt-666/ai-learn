@@ -10,6 +10,8 @@ import { ensureLogin, getCachedUser, isLoggedIn } from '../../utils/auth'
 import { resolveAvatarUrl } from '../../utils/avatar'
 import { accuracyPercent } from '../../utils/format'
 import { setPendingQuizStart } from '../../utils/pending'
+import { resumeUnfinishedSession, toastResumeError } from '../../utils/resumeSession'
+import { settleFullyAnsweredSessions } from '../../utils/silentFinish'
 import { hasSeenGuide, markGuideSeen } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
@@ -22,6 +24,7 @@ export default function HomePage() {
   const [loginError, setLoginError] = useState('')
   const [loggingIn, setLoggingIn] = useState(false)
   const [recent, setRecent] = useState<HistoryItem[]>([])
+  const [unfinished, setUnfinished] = useState<HistoryItem[]>([])
 
   const refresh = async () => {
     setLoggingIn(true)
@@ -30,14 +33,21 @@ export default function HomePage() {
       const u = await ensureLogin()
       setUser(u)
       try {
-        const list = await fetchHistory(2)
-        setRecent(list.slice(0, 2))
+        let inProgress = await fetchHistory(50, { status: 'in_progress' })
+        if (await settleFullyAnsweredSessions(inProgress)) {
+          inProgress = await fetchHistory(50, { status: 'in_progress' })
+        }
+        const completed = await fetchHistory(2, { status: 'completed' })
+        setRecent(completed.slice(0, 2))
+        setUnfinished(inProgress.slice(0, 3))
       } catch {
         setRecent([])
+        setUnfinished([])
       }
     } catch (err) {
       setUser(null)
       setRecent([])
+      setUnfinished([])
       setLoginError(err instanceof ApiError ? err.message : '登录失败，请重试')
     } finally {
       setLoggingIn(false)
@@ -74,6 +84,14 @@ export default function HomePage() {
     setEmptyWarn(false)
     setPendingQuizStart({ source_text: text })
     Taro.navigateTo({ url: '/pages/generate/index' })
+  }
+
+  const onResume = async (item: HistoryItem) => {
+    try {
+      await resumeUnfinishedSession(item.id)
+    } catch (err) {
+      toastResumeError(err, '无法继续闯关')
+    }
   }
 
   if (showGuide) {
@@ -180,34 +198,45 @@ export default function HomePage() {
         )}
 
         <Text className='section-label'>未完成的闯关</Text>
-        <View className='unfinished'>
-          <View
-            className='unfinished-item'
-            onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}
-          >
-            <View className='ico'>
-              <Mascot mood='think' size='tiny' />
-            </View>
-            <View className='meta'>
-              <Text className='meta-title'>产品需求评审</Text>
-              <Text className='meta-sub'>8 题 · 进行中</Text>
-            </View>
-            <View className='ring-text'>60%</View>
+        {unfinished.length === 0 ? (
+          <Text className='hint'>暂无未完成闯关。开一局答到一半退出，就会出现在这里。</Text>
+        ) : (
+          <View className='unfinished'>
+            {unfinished.map((item) => {
+              const answered = item.answered_count ?? 0
+              const total = item.question_count || 0
+              const pct = total > 0 ? Math.round((answered / total) * 100) : 0
+              return (
+                <View
+                  key={item.id}
+                  className='unfinished-item'
+                  onClick={() => void onResume(item)}
+                >
+                  <View className='ico'>
+                    <Mascot mood='think' size='tiny' />
+                  </View>
+                  <View className='meta'>
+                    <Text className='meta-title'>{item.topic_name}</Text>
+                    <Text className='meta-sub'>
+                      {answered}/{total} 题 · 继续闯关
+                    </Text>
+                  </View>
+                  <View className='ring-text'>
+                    <View
+                      className='ring-svg'
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(
+                          `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><circle cx='40' cy='40' r='30' fill='none' stroke='#ffe2c4' stroke-width='6'/><circle cx='40' cy='40' r='30' fill='none' stroke='#ff9f3c' stroke-width='6' stroke-linecap='round' transform='rotate(-90 40 40)' stroke-dasharray='${2 * Math.PI * 30}' stroke-dashoffset='${2 * Math.PI * 30 * (1 - pct / 100)}'/></svg>`,
+                        )}")`,
+                      }}
+                    />
+                    <Text className='ring-num'>{pct}%</Text>
+                  </View>
+                </View>
+              )
+            })}
           </View>
-          <View
-            className='unfinished-item'
-            onClick={() => Taro.showToast({ title: '示意卡片，本期不接续玩', icon: 'none' })}
-          >
-            <View className='ico bulb'>
-              <Text>💡</Text>
-            </View>
-            <View className='meta'>
-              <Text className='meta-title'>民法总则速记</Text>
-              <Text className='meta-sub'>10 题 · 进行中</Text>
-            </View>
-            <View className='ring-text'>40%</View>
-          </View>
-        </View>
+        )}
       </View>
       <TabBar active='home' />
     </View>

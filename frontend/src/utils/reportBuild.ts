@@ -80,6 +80,7 @@ export function ensureReportBuilt(session: QuizSession): Promise<QuizSession> {
         answers: next.answers,
         report,
         source_session_id: next.source_session_id ?? null,
+        session_id: next.session_id ?? null,
       })
       next = {
         ...next,
@@ -122,6 +123,7 @@ function completeOnly(session: QuizSession): Promise<QuizSession> {
       answers: session.answers,
       report: session.report!,
       source_session_id: session.source_session_id ?? null,
+      session_id: session.session_id ?? null,
     })
     const next: QuizSession = {
       ...session,

@@ -7,6 +7,7 @@ import {
   ApiError,
   cancelQuizTask,
   createQuizTask,
+  createSession,
   getQuizTask,
   type QuizTaskPollResult,
 } from '../../utils/api'
@@ -84,11 +85,21 @@ export default function GeneratePage() {
     })
   }
 
-  const enterQuiz = (text: string, task: QuizTaskPollResult) => {
+  const enterQuiz = async (text: string, task: QuizTaskPollResult) => {
     if (abandonedRef.current) return
     if (!task.topic_name || !task.questions?.length) {
       throw new ApiError('GENERATE_FAILED', '出题结果不完整，请重试')
     }
+    setHint('正在保存闯关进度…')
+    const created = await createSession({
+      topic_name: task.topic_name,
+      source_text: text,
+      questions: task.questions,
+      answers: [],
+      current_index: 0,
+      knowledge_base_id: kbIdRef.current ?? null,
+    })
+    if (abandonedRef.current) return
     const session: QuizSession = {
       topic_name: task.topic_name,
       source_text: text,
@@ -98,6 +109,7 @@ export default function GeneratePage() {
       report: null,
       status: 'answering',
       knowledge_base_id: kbIdRef.current ?? null,
+      session_id: created.session_id,
     }
     leavingForQuizRef.current = true
     setBackGuard(false)
@@ -186,7 +198,7 @@ export default function GeneratePage() {
       )
       const done = await pollUntilDone(created.task_id)
       if (abandonedRef.current) return
-      enterQuiz(text, done)
+      await enterQuiz(text, done)
     } catch (err) {
       if (abandonedRef.current) return
       const msg =

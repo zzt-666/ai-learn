@@ -1,10 +1,17 @@
 import Taro from '@tarojs/taro'
-import type { QuizPayload, ReportItem, ReportPayload } from '../types/quiz'
+import type {
+  Question,
+  QuizPayload,
+  ReportItem,
+  ReportPayload,
+  UserAnswer,
+} from '../types/quiz'
 import type {
   CompleteSessionResponse,
   HistoryDetail,
   HistoryItem,
   RetrySessionPayload,
+  SessionDetail,
   UserPublic,
 } from '../types/user'
 import { API_BASE, clearAuth, ensureLogin, getToken, saveAuth } from './auth'
@@ -380,13 +387,54 @@ export function generateReport(payload: {
   })
 }
 
+export function createSession(payload: {
+  topic_name: string
+  source_text: string
+  questions: Question[]
+  answers?: UserAnswer[]
+  current_index?: number
+  knowledge_base_id?: number | null
+  source_session_id?: number | null
+}) {
+  return rawRequest<{ session_id: number; status: string }>('/api/v1/sessions', {
+    method: 'POST',
+    data: payload,
+  })
+}
+
+export function updateSessionProgress(
+  sessionId: number,
+  payload: { answers: UserAnswer[]; current_index: number },
+) {
+  return rawRequest<SessionDetail>(`/api/v1/sessions/${sessionId}/progress`, {
+    method: 'PATCH',
+    data: payload,
+  })
+}
+
+export function fetchSession(sessionId: number) {
+  return rawRequest<SessionDetail>(`/api/v1/sessions/${sessionId}`)
+}
+
+export function finishSession(sessionId: number) {
+  return rawRequest<CompleteSessionResponse>(
+    `/api/v1/sessions/${sessionId}/finish`,
+    { method: 'POST' },
+  ).then((data) => {
+    const token = getToken()
+    if (token) saveAuth(token, data.user)
+    return data
+  })
+}
+
 export function completeSession(payload: {
   topic_name: string
   source_text: string
   questions: unknown[]
   answers: unknown[]
-  report: ReportPayload
+  report?: ReportPayload | null
   source_session_id?: number | null
+  session_id?: number | null
 }) {
   return rawRequest<CompleteSessionResponse>('/api/v1/sessions/complete', {
     method: 'POST',
@@ -398,16 +446,25 @@ export function completeSession(payload: {
   })
 }
 
-export function fetchHistory(limit = 50) {
-  return rawRequest<HistoryItem[]>(`/api/v1/history?limit=${limit}`)
+export function fetchHistory(
+  limit = 50,
+  opts?: { status?: 'in_progress' | 'completed' },
+) {
+  const params = new URLSearchParams({ limit: String(limit) })
+  if (opts?.status) params.set('status', opts.status)
+  return rawRequest<HistoryItem[]>(`/api/v1/history?${params.toString()}`)
 }
 
 export function fetchHistoryDetail(id: number) {
   return rawRequest<HistoryDetail>(`/api/v1/history/${id}`)
 }
 
+export type HistoryReportResult =
+  | { status: 'ready'; report: ReportPayload }
+  | { status: 'pending'; report?: null }
+
 export function fetchHistoryReport(id: number) {
-  return rawRequest<ReportPayload>(`/api/v1/history/${id}/report`)
+  return rawRequest<HistoryReportResult>(`/api/v1/history/${id}/report`)
 }
 
 export function retryHistory(id: number) {

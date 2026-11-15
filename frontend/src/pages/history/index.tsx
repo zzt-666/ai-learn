@@ -5,6 +5,8 @@ import Mascot from '../../components/Mascot'
 import type { HistoryItem } from '../../types/user'
 import { ApiError, fetchHistory } from '../../utils/api'
 import { accuracyPercent, formatFinishedAt } from '../../utils/format'
+import { resumeUnfinishedSession, toastResumeError } from '../../utils/resumeSession'
+import { settleFullyAnsweredSessions } from '../../utils/silentFinish'
 import '../../styles/ui.scss'
 import './index.scss'
 
@@ -15,7 +17,10 @@ export default function HistoryPage() {
   const load = async () => {
     setError('')
     try {
-      const list = await fetchHistory()
+      let list = await fetchHistory()
+      if (await settleFullyAnsweredSessions(list)) {
+        list = await fetchHistory()
+      }
       setItems(list)
     } catch (err) {
       setItems([])
@@ -26,6 +31,18 @@ export default function HistoryPage() {
   useDidShow(() => {
     load()
   })
+
+  const onTapItem = async (item: HistoryItem) => {
+    if (item.status === 'in_progress') {
+      try {
+        await resumeUnfinishedSession(item.id)
+      } catch (err) {
+        toastResumeError(err, '无法继续闯关')
+      }
+      return
+    }
+    Taro.navigateTo({ url: `/pages/history/report?id=${item.id}` })
+  }
 
   return (
     <View className='page-shell'>
@@ -56,33 +73,41 @@ export default function HistoryPage() {
               </View>
             ) : null}
 
-            {(items || []).map((item) => (
-              <View
-                key={item.id}
-                className='list-item'
-                onClick={() =>
-                  Taro.navigateTo({ url: `/pages/history/report?id=${item.id}` })
-                }
-              >
-                <Mascot mood='idle' size='tiny' />
-                <View className='meta grow'>
-                  <Text className='meta-title'>{item.topic_name}</Text>
-                  <Text className='meta-sub'>
-                    {formatFinishedAt(item.finished_at)} · 正确率：
-                    {accuracyPercent(item.accuracy)}%
-                  </Text>
-                  <View className='history-reward-tags'>
-                    <Text className='history-tag history-tag-xp'>
-                      +{item.exp_gained} EXP
+            {(items || []).map((item) => {
+              const unfinished = item.status === 'in_progress'
+              const answered = item.answered_count ?? 0
+              const total = item.question_count || 0
+              return (
+                <View
+                  key={item.id}
+                  className='list-item'
+                  onClick={() => void onTapItem(item)}
+                >
+                  <Mascot mood={unfinished ? 'think' : 'idle'} size='tiny' />
+                  <View className='meta grow'>
+                    <Text className='meta-title'>{item.topic_name}</Text>
+                    <Text className='meta-sub'>
+                      {unfinished
+                        ? `已答 ${answered}/${total} 题 · 可继续`
+                        : `${formatFinishedAt(item.finished_at || item.updated_at)} · 正确率：${accuracyPercent(item.accuracy)}%`}
                     </Text>
-                    <Text className='history-tag history-tag-pts'>
-                      +{item.points_gained} 积分
-                    </Text>
+                    {!unfinished ? (
+                      <View className='history-reward-tags'>
+                        <Text className='history-tag history-tag-xp'>
+                          +{item.exp_gained} EXP
+                        </Text>
+                        <Text className='history-tag history-tag-pts'>
+                          +{item.points_gained} 积分
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
+                  <Text className={`badge ${unfinished ? 'badge-pending' : ''}`}>
+                    {unfinished ? '未完成' : '已通关'}
+                  </Text>
                 </View>
-                <Text className='badge'>已通关</Text>
-              </View>
-            ))}
+              )
+            })}
           </>
         )}
       </View>

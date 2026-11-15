@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
-import Taro, { useDidShow } from '@tarojs/taro'
+import Taro, { useDidHide, useDidShow } from '@tarojs/taro'
 import CoinPill from '../../components/CoinPill'
 import Mascot from '../../components/Mascot'
 import type { Question, QuizSession, UserAnswer } from '../../types/quiz'
-import { ApiError, fetchQuestionExplanation } from '../../utils/api'
+import {
+  ApiError,
+  fetchQuestionExplanation,
+  updateSessionProgress,
+} from '../../utils/api'
 import { isCorrect } from '../../utils/grading'
 import { getCachedUser } from '../../utils/auth'
 import {
@@ -13,6 +17,7 @@ import {
   POINTS_PER_CORRECT,
   calcSessionRewards,
 } from '../../utils/rewards'
+import { silentFinishSession } from '../../utils/silentFinish'
 import { loadSession, saveSession } from '../../utils/storage'
 import '../../styles/ui.scss'
 import './index.scss'
@@ -43,6 +48,10 @@ function truncateTitle(title: string, max = 14): string {
   return `${title.slice(0, max)}…`
 }
 
+function compactAnswers(answers: UserAnswer[]): UserAnswer[] {
+  return answers.filter((a): a is UserAnswer => Boolean(a))
+}
+
 export default function QuizPage() {
   const [session, setSession] = useState<QuizSession | null>(null)
   const [selected, setSelected] = useState<number[]>([])
@@ -50,8 +59,13 @@ export default function QuizPage() {
   const [viewIndex, setViewIndex] = useState(0)
   const [basePoints, setBasePoints] = useState(0)
   const [explainLoading, setExplainLoading] = useState(false)
+  const sessionRef = useRef<QuizSession | null>(null)
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const finishingRef = useRef(false)
+  const leavingForReportRef = useRef(false)
 
   useDidShow(() => {
+    leavingForReportRef.current = false
     const s = loadSession()
     if (!s || !s.questions?.length) {
       Taro.showToast({ title: '没有进行中的闯关', icon: 'none' })
@@ -63,6 +77,7 @@ export default function QuizPage() {
       Taro.redirectTo({ url: '/pages/report/index' })
       return
     }
+    sessionRef.current = s
     setSession(s)
     setViewIndex(s.current_index)
     Taro.setNavigationBarTitle({ title: truncateTitle(s.topic_name) })
@@ -74,6 +89,61 @@ export default function QuizPage() {
     } else {
       setSelected([])
       setFeedback(false)
+    }
+  })
+
+  const flushProgress = async (s: QuizSession) => {
+    if (!s.session_id || s.status === 'done' || s.status === 'reporting') return
+    try {
+      await updateSessionProgress(s.session_id, {
+        answers: compactAnswers(s.answers),
+        current_index: s.current_index,
+      })
+    } catch {
+      // Best-effort; local Storage remains cache.
+    }
+  }
+
+  const scheduleProgressSync = (s: QuizSession) => {
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+    syncTimerRef.current = setTimeout(() => {
+      void flushProgress(s)
+    }, 300)
+  }
+
+  const maybeSilentFinish = async (s: QuizSession) => {
+    if (!s.session_id) return
+    if (finishingRef.current || leavingForReportRef.current) return
+    if (s.status === 'done' || s.status === 'reporting') return
+    const answered = compactAnswers(s.answers)
+    if (answered.length < s.questions.length) return
+    finishingRef.current = true
+    try {
+      const next = await silentFinishSession(s)
+      if (next) {
+        sessionRef.current = next
+        setSession(next)
+      }
+    } catch {
+      // Leave unfinished if finish fails; recovery runs on home/history.
+    } finally {
+      finishingRef.current = false
+    }
+  }
+
+  useDidHide(() => {
+    if (syncTimerRef.current) {
+      clearTimeout(syncTimerRef.current)
+      syncTimerRef.current = null
+    }
+    const s = sessionRef.current
+    if (!s) return
+    // Only when leaving without「查看报告」: flush + silent finish.
+    // Keep last-question explanation view intact until the user actually leaves.
+    // If WeChat cancels the request on unload, home/history will settle later.
+    void flushProgress(s)
+    if (!leavingForReportRef.current) {
+      void maybeSilentFinish(s)
     }
   })
 
@@ -122,9 +192,9 @@ export default function QuizPage() {
   }, [feedback, viewIndex, question?.id, session?.knowledge_base_id])
 
   const total = session?.questions.length || 0
-  const answeredCount = session?.answers.length || 0
+  const answeredCount = compactAnswers(session?.answers || []).length
   const correctSoFar = useMemo(
-    () => (session?.answers || []).filter((a) => a?.is_correct).length,
+    () => compactAnswers(session?.answers || []).filter((a) => a?.is_correct).length,
     [session?.answers],
   )
   const sessionPreview = useMemo(
@@ -140,9 +210,11 @@ export default function QuizPage() {
     (question.type === 'multiple' ? selected.length >= 1 : selected.length === 1)
   const progressPct = total > 0 ? Math.round(((viewIndex + 1) / total) * 100) : 0
 
-  const persist = (next: QuizSession) => {
+  const persist = (next: QuizSession, opts?: { sync?: boolean }) => {
+    sessionRef.current = next
     setSession(next)
     saveSession(next)
+    if (opts?.sync !== false) scheduleProgressSync(next)
   }
 
   const toggleOption = (idx: number) => {
@@ -206,8 +278,11 @@ export default function QuizPage() {
       }
       return
     }
-    // Last question: enter report page; generation starts there (not before click).
-    persist({ ...session, status: 'reporting' })
+    // Last question: open report; silent finish may already have run on leave.
+    leavingForReportRef.current = true
+    const next = { ...session, status: 'reporting' as const }
+    persist(next, { sync: true })
+    void flushProgress(next)
     Taro.redirectTo({ url: '/pages/report/index' })
   }
 
@@ -293,17 +368,7 @@ export default function QuizPage() {
               </View>
             </View>
             <View className={`feedback-sheet ${isCorrectNow ? 'ok' : 'bad'}`}>
-              <View className='sheet-title-row'>
-                <Text className='sheet-title'>知识讲解</Text>
-                {question.explanation_source === 'ai' ||
-                question.explanation?.startsWith('【AI 解析】') ? (
-                  <Text className='source-badge ai'>AI</Text>
-                ) : question.explanation &&
-                  question.explanation !== '暂无解析' &&
-                  !explainLoading ? (
-                  <Text className='source-badge src'>原文</Text>
-                ) : null}
-              </View>
+              <Text className='sheet-title'>知识讲解</Text>
               <Text className='sheet-body'>
                 {explainLoading && needsAiExplanation(question)
                   ? '正在生成解析…'

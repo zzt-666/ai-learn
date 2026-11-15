@@ -236,17 +236,25 @@ class QuizSession(Base):
     topic_name: Mapped[str] = mapped_column(String(64), nullable=False)
     source_text: Mapped[str] = mapped_column(Text, nullable=False)
     question_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    correct_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    wrong_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    accuracy: Mapped[Any] = mapped_column(Numeric(5, 4), nullable=False)
-    exp_gained: Mapped[int] = mapped_column(Integer, nullable=False)
-    points_gained: Mapped[int] = mapped_column(Integer, nullable=False)
+    correct_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    wrong_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    accuracy: Mapped[Optional[Any]] = mapped_column(Numeric(5, 4), nullable=True)
+    exp_gained: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    points_gained: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     questions_json: Mapped[Any] = mapped_column(JSON, nullable=False)
     answers_json: Mapped[Any] = mapped_column(JSON, nullable=False)
-    report_json: Mapped[Any] = mapped_column(JSON, nullable=False)
+    report_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
     source_session_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
-    finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    knowledge_base_id: Mapped[Optional[int]] = mapped_column(
+        BigInteger, ForeignKey("knowledge_bases.id"), nullable=True, index=True
+    )
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="in_progress", index=True)
+    current_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     user: Mapped["User"] = relationship(back_populates="sessions")
 
