@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import math
 from datetime import datetime, timezone
-from pathlib import Path
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
@@ -25,8 +24,8 @@ from app.models.knowledge import (
     MasterMapStatus,
     MasterStatusPublic,
 )
-from app.services.document_parse import EmptyDocumentError, extract_text
-from app.services.knowledge_service import get_owned_base, knowledge_upload_root
+from app.services.document_parse import EmptyDocumentError
+from app.services.knowledge_service import get_owned_base, read_document_text
 from app.services.master_point_extract import extract_points
 from app.services.master_section_split import split_into_sections
 
@@ -375,9 +374,10 @@ def run_generate_master_map(
         kb.master_map_error = None
         db.commit()
 
-        path = knowledge_upload_root() / doc.storage_path
         try:
-            text = extract_text(Path(path), filename=doc.filename)
+            text = read_document_text(
+                storage_path=doc.storage_path, filename=doc.filename
+            )
             saved = _persist_map(db, kb=kb, document=doc, text=text, use_llm=use_llm)
             db.commit()
             logger.info(

@@ -71,17 +71,62 @@ def test_avatar_rejects_non_image(client, auth_headers):
     assert resp.json()["error_code"] == "INVALID_AVATAR"
 
 
+_PNG_1X1 = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+    b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00"
+    b"\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
 def test_avatar_upload_ok(client, auth_headers):
-    # 1x1 PNG
-    png = (
-        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
-        b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00"
-        b"\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB`\x82"
-    )
     resp = client.post(
         "/api/v1/me/avatar",
         headers=auth_headers,
-        files={"file": ("a.png", png, "image/png")},
+        files={"file": ("a.png", _PNG_1X1, "image/png")},
     )
     assert resp.status_code == 200
     assert resp.json()["avatar_url"].startswith("/uploads/avatars/")
+
+
+def test_avatar_replace_deletes_old(client, auth_headers):
+    from app.services.object_storage import LocalObjectStorage, override_object_storage
+
+    class TrackingStorage(LocalObjectStorage):
+        def __init__(self, root):
+            super().__init__(root)
+            self.deleted: list[str] = []
+
+        def delete(self, key: str) -> None:
+            self.deleted.append(key)
+            super().delete(key)
+
+    import tempfile
+    from pathlib import Path
+
+    root = Path(tempfile.mkdtemp())
+    store = TrackingStorage(root)
+    override_object_storage(store)
+    try:
+        first = client.post(
+            "/api/v1/me/avatar",
+            headers=auth_headers,
+            files={"file": ("a.png", _PNG_1X1, "image/png")},
+        )
+        assert first.status_code == 200
+        old_url = first.json()["avatar_url"]
+        assert old_url.startswith("/uploads/avatars/")
+        old_key = old_url.removeprefix("/uploads/")
+
+        second = client.post(
+            "/api/v1/me/avatar",
+            headers=auth_headers,
+            files={"file": ("b.png", _PNG_1X1, "image/png")},
+        )
+        assert second.status_code == 200
+        new_url = second.json()["avatar_url"]
+        assert new_url.startswith("/uploads/avatars/")
+        assert new_url != old_url
+        assert old_key in store.deleted
+        assert store.deleted.count(old_key) == 1
+    finally:
+        override_object_storage(None)

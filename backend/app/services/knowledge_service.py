@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import re
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from langchain_core.embeddings import Embeddings
@@ -12,7 +14,6 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.db import base as db_base
-from datetime import datetime, timezone
 
 from app.db.models import (
     KbQuestion,
@@ -32,7 +33,7 @@ from app.models.knowledge import (
     KnowledgeDocumentPublic,
 )
 from app.services import chroma_store
-from app.services.document_parse import EmptyDocumentError, extract_text, parse_and_split
+from app.services.document_parse import EmptyDocumentError, extract_text, split_text
 from app.services.embeddings import get_embeddings
 from app.services.kb_limits import (
     check_base_quota,
@@ -40,6 +41,7 @@ from app.services.kb_limits import (
     content_type_for_filename,
     is_supported_filename,
 )
+from app.services.object_storage import get_object_storage
 from app.services.question_split import (
     split_questions_with_llm_fallback,
     suggest_mode_from_text,
@@ -62,10 +64,34 @@ def _safe_filename(name: str) -> str:
 
 
 def knowledge_upload_root(settings: Settings | None = None) -> Path:
+    """Legacy local root under uploads/knowledge (kept for tests / migration paths)."""
     s = settings or get_settings()
     root = Path(s.upload_dir) / "knowledge"
     root.mkdir(parents=True, exist_ok=True)
     return root
+
+
+def _knowledge_object_key(*, user_id: int, kb_id: int, doc_id: int, filename: str) -> str:
+    return f"knowledge/{user_id}/{kb_id}/{doc_id}_{_safe_filename(filename)}"
+
+
+def read_document_text(*, storage_path: str, filename: str) -> str:
+    """Load document bytes via object storage into a temp file for extract_text."""
+    storage = get_object_storage()
+    data = storage.get(storage_path)
+    suffix = Path(filename).suffix or ".bin"
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(data)
+            tmp_path = Path(tmp.name)
+        return extract_text(tmp_path, filename=filename)
+    finally:
+        if tmp_path is not None:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                logger.warning("failed to remove temp ingest file path=%s", tmp_path)
 
 
 def to_base_public(
@@ -508,11 +534,17 @@ def create_pending_document(
     db.add(row)
     db.flush()
 
-    rel = Path(str(user_id)) / str(kb_id) / f"{row.id}_{_safe_filename(filename)}"
-    abs_path = knowledge_upload_root(settings) / rel
-    abs_path.parent.mkdir(parents=True, exist_ok=True)
-    abs_path.write_bytes(raw)
-    row.storage_path = str(rel).replace("\\", "/")
+    key = _knowledge_object_key(
+        user_id=user_id, kb_id=kb_id, doc_id=row.id, filename=filename
+    )
+    storage = get_object_storage()
+    try:
+        storage.put(key, raw, content_type=row.content_type)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("knowledge put failed key=%s", key)
+        db.rollback()
+        raise bad_request("STORAGE_ERROR", "文档存储失败，请稍后重试") from exc
+    row.storage_path = key
     db.commit()
     db.refresh(row)
     return to_doc_public(row)
@@ -521,12 +553,10 @@ def create_pending_document(
 def _delete_doc_file(storage_path: str) -> None:
     if not storage_path:
         return
-    path = knowledge_upload_root() / storage_path
     try:
-        if path.is_file():
-            path.unlink()
-    except OSError:
-        logger.warning("failed to delete knowledge file path=%s", path)
+        get_object_storage().delete(storage_path)
+    except Exception:  # noqa: BLE001
+        logger.warning("failed to delete knowledge object key=%s", storage_path, exc_info=True)
 
 
 def delete_document(db: Session, *, kb_id: int, doc_id: int, user_id: int) -> None:
@@ -599,9 +629,10 @@ def run_ingest_document(
         db.commit()
         db.refresh(row)
 
-        path = knowledge_upload_root() / row.storage_path
         try:
-            text = extract_text(path, filename=row.filename)
+            text = read_document_text(
+                storage_path=row.storage_path, filename=row.filename
+            )
             suggested, _ = suggest_mode_from_text(text)
             if not kb.suggested_mode:
                 kb.suggested_mode = suggested
@@ -630,8 +661,8 @@ def run_ingest_document(
                 db.commit()
                 return
 
-            # master: vector ingest
-            chunks = parse_and_split(path, filename=row.filename)
+            # master: vector ingest (reuse extracted text; avoid second filesystem read)
+            chunks = split_text(text)
             emb = embeddings or get_embeddings()
             store = chroma_store.get_vector_store(row.knowledge_base_id, embeddings=emb)
             chroma_store.add_chunks(

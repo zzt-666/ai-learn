@@ -1,21 +1,25 @@
 from __future__ import annotations
 
+import logging
 import uuid
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
 from app.db.base import get_db
 from app.db.models import User
 from app.deps import get_current_user
 from app.exceptions import bad_request
 from app.models.errors import ErrorResponse
 from app.models.user import UpdateProfileRequest, UserPublic
+from app.services.object_storage import (
+    avatar_key_from_url,
+    get_object_storage,
+)
 from app.services.users import to_user_public
 
 router = APIRouter(prefix="/api/v1", tags=["me"])
+logger = logging.getLogger(__name__)
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_AVATAR_BYTES = 2 * 1024 * 1024
@@ -65,22 +69,30 @@ async def upload_avatar(
     if len(data) > MAX_AVATAR_BYTES:
         raise bad_request("INVALID_AVATAR", "头像不能超过 2MB")
 
-    settings = get_settings()
-    avatar_dir = Path(settings.upload_dir) / "avatars"
-    avatar_dir.mkdir(parents=True, exist_ok=True)
-
     ext = {
         "image/jpeg": ".jpg",
         "image/png": ".png",
         "image/webp": ".webp",
         "image/gif": ".gif",
     }.get(content_type, ".jpg")
-    filename = f"{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
-    path = avatar_dir / filename
-    path.write_bytes(data)
+    key = f"avatars/{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    storage = get_object_storage()
+    try:
+        storage.put(key, data, content_type=content_type)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("avatar put failed key=%s", key)
+        raise bad_request("STORAGE_ERROR", "头像存储失败，请稍后重试") from exc
 
-    current_user.avatar_url = f"/uploads/avatars/{filename}"
+    old_key = avatar_key_from_url(current_user.avatar_url)
+    current_user.avatar_url = storage.public_url(key)
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
+
+    if old_key and old_key != key:
+        try:
+            storage.delete(old_key)
+        except Exception:  # noqa: BLE001
+            logger.warning("failed to delete previous avatar key=%s", old_key, exc_info=True)
+
     return to_user_public(current_user)

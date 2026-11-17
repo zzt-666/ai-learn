@@ -66,6 +66,12 @@ class Settings:
         self.kb_max_docs_per_base: int = int(os.getenv("KB_MAX_DOCS_PER_BASE", "1"))
         self.kb_max_bases_per_user: int = int(os.getenv("KB_MAX_BASES_PER_USER", "10"))
 
+        self.oss_access_key_id: str = os.getenv("OSS_ACCESS_KEY_ID", "").strip()
+        self.oss_access_key_secret: str = os.getenv("OSS_ACCESS_KEY_SECRET", "").strip()
+        self.oss_bucket: str = os.getenv("OSS_BUCKET", "").strip()
+        self.oss_endpoint: str = os.getenv("OSS_ENDPOINT", "").strip()
+        self.oss_region: str = os.getenv("OSS_REGION", "").strip()
+
     @property
     def database_url(self) -> str:
         return (

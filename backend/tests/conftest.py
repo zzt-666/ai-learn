@@ -16,6 +16,9 @@ os.environ["WECHAT_MOCK_LOGIN"] = "true"
 os.environ["MYSQL_DATABASE"] = os.environ.get("MYSQL_TEST_DATABASE", "ai_learn_test")
 if not os.getenv("JWT_SECRET"):
     os.environ["JWT_SECRET"] = "test-secret-at-least-32-characters!!"
+# Tests must use local object storage, never the developer's real OSS credentials.
+os.environ["OSS_ACCESS_KEY_ID"] = ""
+os.environ["OSS_ACCESS_KEY_SECRET"] = ""
 
 from collections.abc import Generator
 
